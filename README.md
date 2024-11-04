@@ -1,12 +1,12 @@
-# Team *enter team name here* Small Group project
+# Team HIPPO Small Group project
 
 ## Team members
 The members of the team are:
-- *enter full name 1 here*
-- *enter full name 2 here*
-- *enter full name 3 here*
-- *enter full name 4 here*
-- *enter full name 5 here*
+- Isabelle Li-Yip
+- Agrima Khare
+- Aamukta Malyada Thogata
+- Daniel Tierney
+- Muhammad Chikhoun
 
 ## Project structure
 The project is called `task_manager`.  It currently consists of a single app `tasks`.
