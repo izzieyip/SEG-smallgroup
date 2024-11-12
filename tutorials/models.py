@@ -40,3 +40,29 @@ class User(AbstractUser):
         """Return a URL to a miniature version of the user's gravatar."""
         
         return self.gravatar(size=60)
+    
+Skills = {
+        "CPP": "C++",
+        "JA" : "JAVA",
+        "PY" : "PYTHON",
+        "DJ" : "DJANGO"
+    }
+days = {
+        "SUN" : 'Sunday',
+        "MON" : 'Monday',
+        "TUE" : 'Tuesday',
+        "WED" : 'Wednesday',
+        "THU" : 'Thursday',
+        "FRI" : 'Friday',
+        "SAT" : 'Saturday'
+    }
+
+class Student(User):
+    skill_to_learn = models.CharField(choices = Skills, max_length= 3)
+    availableTime  = models.TimeField()
+    availableDays = models.CharField(choices=days, max_length=3)
+
+class Tutor(User):
+    skills = models.JSONField(blank=True, default=list, choices = Skills)
+    availableTime  = models.TimeField()
+    availableDays = models.CharField(choices=days, max_length=3)
