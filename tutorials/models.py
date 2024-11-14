@@ -63,6 +63,6 @@ class Student(User):
     availableDays = models.CharField(choices=days, max_length=3)
 
 class Tutor(User):
-    skills = models.JSONField(blank=True, default=list, choices = Skills)
+    skills = models.CharField(choices = Skills, max_length= 3)
     availableTime  = models.TimeField()
     availableDays = models.CharField(choices=days, max_length=3)
