@@ -151,3 +151,14 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+    
+#class ViewBookingsView(LoginRequiredMixin, View):
+    """Display all bookings in table format."""
+
+    #model = tbc
+    #template_name = "view_bookings.html"
+
+def ViewBookingsView(request):
+
+    context = {'tableInfo':'this is a table'}
+    return render(request, 'view_bookings.html', context)
