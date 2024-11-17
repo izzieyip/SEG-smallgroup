@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from tutorials.models import User
+from tutorials.models import User, Student, Tutor
 
 import pytz
 from faker import Faker

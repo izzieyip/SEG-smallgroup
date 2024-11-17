@@ -41,39 +41,41 @@ class User(AbstractUser):
         
         return self.gravatar(size=60)
     
-Skills = {
-        "CPP": "C++",
-        "JA" : "JAVA",
-        "PY" : "PYTHON",
-        "DJ" : "DJANGO"
-    }
-days = {
-        "SUN" : 'Sunday',
-        "MON" : 'Monday',
-        "TUE" : 'Tuesday',
-        "WED" : 'Wednesday',
-        "THU" : 'Thursday',
-        "FRI" : 'Friday',
-        "SAT" : 'Saturday'
-    }
+Skills = [
+    ("CPP", "C++"),
+    ("JA", "JAVA"),
+    ("PY", "PYTHON"),
+    ("DJ", "DJANGO")
+]
 
-times = {
-    1 : "Morning",
-    2 : "Afternoon",
-    3 : "Evening",
-    4 : "Morning and Afternoon",
-    5 : "Afternoon and Evening",
-    6 : "Morning and Evening",
-    7 : "Whole day"
-}
+days = [
+    ("SUN", 'Sunday'),
+    ("MON", 'Monday'),
+    ("TUE", 'Tuesday'),
+    ("WED", 'Wednesday'),
+    ("THU", 'Thursday'),
+    ("FRI", 'Friday'),
+    ("SAT", 'Saturday')
+]
 
-difficulty_levels = {
-    1 : '1',
-    2 : '2',
-    3 : '3',
-    4 : '4',
-    5 : '5'
-}
+times = [
+    (1, "Morning"),
+    (2, "Afternoon"),
+    (3, "Evening"),
+    (4, "Morning and Afternoon"),
+    (5, "Afternoon and Evening"),
+    (6, "Morning and Evening"),
+    (7, "Whole day")
+]
+
+difficulty_levels = [
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4'),
+    (5, '5')
+]
+
 
 class Student(User):
     skill_to_learn = models.CharField(choices = Skills, max_length= 3)
@@ -93,7 +95,7 @@ class Tutor(User):
 class Availability(models.Model):
     tutor_id = models.ForeignKey(Tutor, on_delete=models.CASCADE)
     available_day = models.CharField(choices=days, max_length=3)
-    available_time = models.IntegerField(choices=times, max_length=1)
+    available_time = models.IntegerField(choices=times)
 
     def __str__(self) -> str:
         return f'{self.tutor_id.first_name} is available at {self.available_day} for the {self.available_time}'
