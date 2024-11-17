@@ -67,18 +67,24 @@ times = {
     7 : "Whole day"
 }
 
-DIFFICULTY_LEVELS = [1, 2, 3, 4, 5]
+difficulty_levels = {
+    1 : '1',
+    2 : '2',
+    3 : '3',
+    4 : '4',
+    5 : '5'
+}
 
 class Student(User):
     skill_to_learn = models.CharField(choices = Skills, max_length= 3)
-    difficulty_level = models.IntegerField(choices= DIFFICULTY_LEVELS)
+    difficulty_level = models.IntegerField(choices= difficulty_levels, default=None)
 
     def __str__(self) -> str:
         return super().__str__() + f'wants to learn {self.skill_to_learn} at difficulty level {self.difficulty_level}'
 
 class Tutor(User):
     skills = models.CharField(choices = Skills, max_length= 3)
-    experience_level = models.IntegerField(choices= DIFFICULTY_LEVELS)
+    experience_level = models.IntegerField(choices= difficulty_levels, default=None)
 
     def __str__(self) -> str:
         return super().__str__() + f'knows {self.skill_to_learn} with an experience level of {self.difficulty_level}'
