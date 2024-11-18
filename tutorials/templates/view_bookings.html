@@ -12,16 +12,13 @@
       <th>Column2</th>
       <th>Column3</th>
     </tr>
+    {% for booking in booking_data%}
     <tr>
       <td>testing</td>
       <td>...</td>
       <td>...</td>
     </tr>
-    <tr>
-      <td>{{tableInfo}}</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
+    {% endfor %}
   </table>
 </div>
 {% endblock %}
