@@ -160,5 +160,6 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
 def ViewBookingsView(request):
 
-    context = {'tableInfo':'this is a table'}
+    booking_data = Pending_booking.objects.all()
+    context = {'tableInfo':booking_data}
     return render(request, 'view_bookings.html', context)
