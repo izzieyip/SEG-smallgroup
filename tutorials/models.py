@@ -90,7 +90,7 @@ class Tutor(User):
     experience_level = models.IntegerField(choices= difficulty_levels, default=None)
 
     def __str__(self) -> str:
-        return super().__str__() + f'knows {self.skill_to_learn} with an experience level of {self.difficulty_level}'
+        return super().__str__() + f'knows {self.skills} with an experience level of {self.difficulty_level}'
 
 
 class Availability(models.Model):
