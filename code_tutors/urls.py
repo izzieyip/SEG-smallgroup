@@ -1,3 +1,4 @@
+
 """
 URL configuration for code_tutors project.
 
@@ -32,4 +33,5 @@ urlpatterns = [
     path('view_bookings/', views.ViewBookingsView, name='view_bookings'),
     #path('view_bookings/<int:booking_id>), views. , name='view_booking_id'),
 ]
+
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

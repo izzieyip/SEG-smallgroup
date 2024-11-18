@@ -1,3 +1,4 @@
+
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -40,17 +41,65 @@ class User(AbstractUser):
         """Return a URL to a miniature version of the user's gravatar."""
         
         return self.gravatar(size=60)
+    
+Skills = [
+    ("CPP", "C++"),
+    ("JA", "JAVA"),
+    ("PY", "PYTHON"),
+    ("DJ", "DJANGO")
+]
 
-#placeholders to avoid error
+days = [
+    ("SUN", 'Sunday'),
+    ("MON", 'Monday'),
+    ("TUE", 'Tuesday'),
+    ("WED", 'Wednesday'),
+    ("THU", 'Thursday'),
+    ("FRI", 'Friday'),
+    ("SAT", 'Saturday')
+]
+
+times = [
+    (1, "Morning"),
+    (2, "Afternoon"),
+    (3, "Evening"),
+    (4, "Morning and Afternoon"),
+    (5, "Afternoon and Evening"),
+    (6, "Morning and Evening"),
+    (7, "Whole day")
+]
+
+difficulty_levels = [
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4'),
+    (5, '5')
+]
+
+
 class Student(User):
-    pass
+    skill_to_learn = models.CharField(choices = Skills, max_length= 3)
+    difficulty_level = models.IntegerField(choices= difficulty_levels, default=None)
 
-#placeholders to avoid error
+    def __str__(self) -> str:
+        return super().__str__() + f'wants to learn {self.skill_to_learn} at difficulty level {self.difficulty_level}'
+
 class Tutor(User):
-    pass
+    skills = models.CharField(choices = Skills, max_length= 3)
+    experience_level = models.IntegerField(choices= difficulty_levels, default=None)
+
+    def __str__(self) -> str:
+        return super().__str__() + f'knows {self.skill_to_learn} with an experience level of {self.difficulty_level}'
 
 
+class Availability(models.Model):
+    tutor_id = models.ForeignKey(Tutor, on_delete=models.CASCADE)
+    available_day = models.CharField(choices=days, max_length=3)
+    available_time = models.IntegerField(choices=times)
 
+    def __str__(self) -> str:
+        return f'{self.tutor_id.first_name} is available at {self.available_day} for the {self.available_time}'
 
 
 #Pending Bookings class (no tutor assigned)
