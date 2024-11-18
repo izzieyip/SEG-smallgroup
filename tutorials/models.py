@@ -1,3 +1,4 @@
+
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -99,3 +100,38 @@ class Availability(models.Model):
 
     def __str__(self) -> str:
         return f'{self.tutor_id.first_name} is available at {self.available_day} for the {self.available_time}'
+
+
+#Pending Bookings class (no tutor assigned)
+#Refers to objects of the student class
+#Student is a foreign key to student ID
+#can access the data using "student = Student.objects.get(id="THE ID NUMBER")"
+class Pending_booking(models.Model):
+    #on_delete=models.CASCADE ensure if a student is removed from the students model, their pending bookings are deleted too
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="pending_bookings")
+    booking_date = models.DateField()
+    booking_time = models.TimeField()
+
+    def __str__(self):
+        return f"Booking Pending for: {self.student} on {self.booking_date} at {self.booking_time}"
+
+    #ensures each one is unique
+    class Meta:
+        unique_together = ('student', 'booking_date', 'booking_time')
+
+#Confirmed Bookings class (tutor assigned)
+#Refers to objects of the tutor and Pending_booking classes
+#Tutor is a foreign key to tutor ID
+#booking is a foreign key to Pending_booking ID
+#can access the data using "booking = Pending_booking.objects.get(id="THE ID NUMBER")"
+class Confirmed_booking(models.Model):
+    #on_delete=models.CASCADE ensure if a student is removed from the students model, their pending bookings are deleted too
+    booking = models.ForeignKey(Pending_booking, on_delete=models.CASCADE, related_name="confirmed_booking")
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name="confirmed_bookings")
+
+    def __str__(self):
+        return f"Booking: {self.booking.student} with {self.tutor} on {self.booking.booking_date} at {self.booking.booking_time}"
+
+    #ensures each one is unique
+    class Meta:
+        unique_together = ('booking', 'tutor')

@@ -1,3 +1,4 @@
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
@@ -151,3 +152,15 @@ class SignUpView(LoginProhibitedMixin, FormView):
 
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
+    
+#class ViewBookingsView(LoginRequiredMixin, View):
+    """Display all bookings in table format."""
+
+    #model = tbc
+    #template_name = "view_bookings.html"
+
+def ViewBookingsView(request):
+
+    booking_data = Pending_booking.objects.all()
+    context = {'tableInfo':booking_data}
+    return render(request, 'view_bookings.html', context)
