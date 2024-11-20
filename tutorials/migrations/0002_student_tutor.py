@@ -7,116 +7,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
+
     dependencies = [
-        ("tutorials", "0001_initial"),
+        ('tutorials', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="Student",
+            name='Student',
             fields=[
-                (
-                    "user_ptr",
-                    models.OneToOneField(
-                        auto_created=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        parent_link=True,
-                        primary_key=True,
-                        serialize=False,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-                (
-                    "skill_to_learn",
-                    models.CharField(
-                        choices=[
-                            ("CPP", "C++"),
-                            ("JA", "JAVA"),
-                            ("PY", "PYTHON"),
-                            ("DJ", "DJANGO"),
-                        ],
-                        max_length=3,
-                    ),
-                ),
-                ("availableTime", models.TimeField()),
-                (
-                    "availableDays",
-                    models.CharField(
-                        choices=[
-                            ("SUN", "Sunday"),
-                            ("MON", "Monday"),
-                            ("TUE", "Tuesday"),
-                            ("WED", "Wednesday"),
-                            ("THU", "Thursday"),
-                            ("FRI", "Friday"),
-                            ("SAT", "Saturday"),
-                        ],
-                        max_length=3,
-                    ),
-                ),
+                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('skill_to_learn', models.CharField(choices=[('CPP', 'C++'), ('JA', 'JAVA'), ('PY', 'PYTHON'), ('DJ', 'DJANGO')], max_length=3)),
+                ('difficulty_level', models.IntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')], default=None)),
             ],
             options={
-                "verbose_name": "user",
-                "verbose_name_plural": "users",
-                "abstract": False,
+                'verbose_name': 'user',
+                'verbose_name_plural': 'users',
+                'abstract': False,
             },
-            bases=("tutorials.user",),
+            bases=('tutorials.user',),
             managers=[
-                ("objects", django.contrib.auth.models.UserManager()),
+                ('objects', django.contrib.auth.models.UserManager()),
             ],
         ),
         migrations.CreateModel(
-            name="Tutor",
+            name='Tutor',
             fields=[
-                (
-                    "user_ptr",
-                    models.OneToOneField(
-                        auto_created=True,
-                        on_delete=django.db.models.deletion.CASCADE,
-                        parent_link=True,
-                        primary_key=True,
-                        serialize=False,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-                (
-                    "skills",
-                    models.JSONField(
-                        blank=True,
-                        choices=[
-                            ("CPP", "C++"),
-                            ("JA", "JAVA"),
-                            ("PY", "PYTHON"),
-                            ("DJ", "DJANGO"),
-                        ],
-                        default=list,
-                    ),
-                ),
-                ("availableTime", models.TimeField()),
-                (
-                    "availableDays",
-                    models.CharField(
-                        choices=[
-                            ("SUN", "Sunday"),
-                            ("MON", "Monday"),
-                            ("TUE", "Tuesday"),
-                            ("WED", "Wednesday"),
-                            ("THU", "Thursday"),
-                            ("FRI", "Friday"),
-                            ("SAT", "Saturday"),
-                        ],
-                        max_length=3,
-                    ),
-                ),
+                ('user_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
+                ('skills', models.CharField(choices=[('CPP', 'C++'), ('JA', 'JAVA'), ('PY', 'PYTHON'), ('DJ', 'DJANGO')], max_length=3)),
+                ('experience_level', models.IntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')], default=None)),
             ],
             options={
-                "verbose_name": "user",
-                "verbose_name_plural": "users",
-                "abstract": False,
+                'verbose_name': 'user',
+                'verbose_name_plural': 'users',
+                'abstract': False,
             },
-            bases=("tutorials.user",),
+            bases=('tutorials.user',),
             managers=[
-                ("objects", django.contrib.auth.models.UserManager()),
+                ('objects', django.contrib.auth.models.UserManager()),
             ],
         ),
     ]
