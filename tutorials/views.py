@@ -202,3 +202,10 @@ def search_confirmed_requests(query):
         Q(booking_date__icontains=query)
     )
     return bookings
+
+class CreateBookingRequest(LoginRequiredMixin, FormView):
+    
+    form_class = CreateBookingRequest
+    template_name = "booking_requests.html"
+
+
