@@ -9,8 +9,9 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest
 from tutorials.helpers import login_prohibited
+from tutorials.models import Pending_booking
 
 
 @login_required
@@ -164,3 +165,10 @@ def ViewBookingsView(request):
     booking_data = Pending_booking.objects.all()
     context = {'tableInfo':booking_data}
     return render(request, 'view_bookings.html', context)
+
+class CreateBookingRequest(LoginRequiredMixin, FormView):
+    
+    form_class = CreateBookingRequest
+    template_name = "booking_requests.html"
+
+
