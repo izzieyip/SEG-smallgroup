@@ -9,8 +9,11 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm
 from tutorials.helpers import login_prohibited
+from tutorials.models import Pending_booking, Confirmed_booking, Student, Tutor
+from django.http import HttpResponse, HttpResponseRedirect
+
 
 
 @login_required
@@ -164,3 +167,56 @@ def ViewBookingsView(request):
     booking_data = Pending_booking.objects.all()
     context = {'tableInfo':booking_data}
     return render(request, 'view_bookings.html', context)
+
+
+def createBooking(request):
+    if request.method == "POST":
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            studentuser = form.cleaned_data['student']
+            subject = form.cleaned_data['subject']
+            date = form.cleaned_data['date']
+            time = form.cleaned_data['time']
+            tutoruser = form.cleaned_data['tutor']
+            #search for bookingrequest object, search for tutor object
+            try:
+                student = Student.objects.get(username=studentuser)
+                tutor = Tutor.objects.get(username=tutoruser)
+                #bookingrequest = Pending_booking.objects.get(student=student, subject=subject)
+                #booking = Confirmed_booking(booking=bookingrequest, tutor=tutor)
+                #booking.save()
+            except:
+                form.add_error(None, "Student or Tutor find is not possible")
+            else:
+                path = reverse('dashboard')
+                return HttpResponseRedirect(path)
+    else:
+        form = BookingForm()
+    return render(request, 'create_booking.html', {'form': form})
+
+
+def updateBooking(request): #bookingid?
+
+    #booking = Confirmed_booking.objects.get(id=bookingid)
+
+    if request.method == "POST":
+        form = BookingForm(request.POST) #instance=booking
+        if form.is_valid():
+            #studentuser = form.cleaned_data['student'] <- shouldnt be able to change anythign except date/time
+            #subject = form.cleaned_data['subject']
+            date = form.cleaned_data['date']
+            time = form.cleaned_data['time']
+            #tutoruser = form.cleaned_data['tutor']
+            #search for bookingrequest object, search for tutor object
+            try:
+                ()
+                #booking.save()
+            except:
+                form.add_error(None, "Changes NOT saved - error occured.")
+            else:
+                path = reverse('dashboard')
+                return HttpResponseRedirect(path)
+            
+    else:
+        form = BookingForm() #instance=booking
+    return render(request, 'update_booking.html', {'form': form})
