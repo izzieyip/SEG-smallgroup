@@ -1,0 +1,12 @@
+<html>
+    <head>Update Booking Form</head>
+    
+    <body>
+        <h1> The current information</h1>
+        <form action="{% url 'update_booking' id %}" method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>
