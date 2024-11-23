@@ -203,9 +203,12 @@ def search_confirmed_requests(query):
     )
     return bookings
 
-class CreateBookingRequest(LoginRequiredMixin, FormView):
+def CreatingBookingRequest(request):
     
-    form_class = CreateBookingRequest
-    template_name = "booking_requests.html"
+    model = Booking_requests
+    form_class = CreateBookingRequest()
+    template_name = "create_booking_requests.html"
+    return render(request, template_name,  context = {'form':form_class})
+
 
 
