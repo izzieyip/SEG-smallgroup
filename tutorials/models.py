@@ -111,10 +111,9 @@ class Pending_booking(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="pending_bookings")
     booking_date = models.DateField()
     booking_time = models.TimeField()
-    subject = models.CharField(choices = Skills, max_length= 3)
 
     def __str__(self):
-        return f"Booking Pending for: {self.student} on {self.booking_date} at {self.booking_time}, wants to learn {self.subject}."
+        return f"Booking Pending for: {self.student} on {self.booking_date} at {self.booking_time}"
 
     #ensures each one is unique
     class Meta:
@@ -131,7 +130,7 @@ class Confirmed_booking(models.Model):
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name="confirmed_bookings")
 
     def __str__(self):
-        return f"Booking: {self.booking.student} with {self.tutor} on {self.booking.booking_date} at {self.booking.booking_time}, learning {self.booking.subject}."
+        return f"Booking: {self.booking.student} with {self.tutor} on {self.booking.booking_date} at {self.booking.booking_time}"
 
     #ensures each one is unique
     class Meta:

@@ -166,9 +166,12 @@ def ViewBookingsView(request):
     context = {'tableInfo':booking_data}
     return render(request, 'view_bookings.html', context)
 
-class CreateBookingRequest(LoginRequiredMixin, FormView):
+def CreatingBookingRequest(request):
     
-    form_class = CreateBookingRequest
-    template_name = "booking_requests.html"
+    model = Pending_booking
+    form_class = CreateBookingRequest()
+    template_name = "create_booking_requests.html"
+    return render(request, template_name,  context = {'form':form_class})
+
 
 
