@@ -11,6 +11,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm
 from tutorials.helpers import login_prohibited
+from tutorials.models import Confirmed_booking
 
 
 @login_required
@@ -153,14 +154,16 @@ class SignUpView(LoginProhibitedMixin, FormView):
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
     
-#class ViewBookingsView(LoginRequiredMixin, View):
-    """Display all bookings in table format."""
 
-    #model = tbc
-    #template_name = "view_bookings.html"
+@login_required
+def ViewBookingsView(request): 
+    ''' UNCOMMENT BELOW WHEN ADMIN USERS ARE IMPLEMENTED
+    #Block permission if the user is not an Admin
+    if not request.user.is_superuser == True:
+        return render(request, 'permission_denied.html') '''
 
-def ViewBookingsView(request):
-
-    booking_data = Pending_booking.objects.all()
-    context = {'tableInfo':booking_data}
+    booking_data = Confirmed_booking.objects.all() #Fetch Database info for all bookings
+    context = {'bookingData':booking_data}
     return render(request, 'view_bookings.html', context)
+
+    

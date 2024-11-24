@@ -1,22 +1,85 @@
 {% extends 'base_content.html' %}
 {% block content %}
+
 <div class="container">
   <div class="row">
-    <div class="col-12">
-      <h1>View all existing bookings.</h1>
+    <div class="col-8">
+      <h1>All upcoming bookings.</h1>
+    </div>
+    <div class="col-4 d-grid gap-2 d-md-flex justify-content-md-end">
+      <button type="button" class="btn btn-outline-info btn-lg">Create a new Booking</button>
+      <!-- use <a href="{% url 'create_booking' %}" class="button">Create a new Booking</a> for hyperlink -->
     </div>
   </div>
-  <table>
+  <table class="table table-striped">
     <tr>
-      <th>Column1</th>
-      <th>Column2</th>
-      <th>Column3</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Tutor</th>
+      <th>Student</th>
+      <th>Subject</th>
+      <th>Manage</th>
     </tr>
-    {% for booking in booking_data%}
+
+    <!--start temp-->
+
     <tr>
-      <td>testing</td>
-      <td>...</td>
-      <td>...</td>
+      <td>1/1/2025</td>
+      <td>12:00</td>
+      <td>James Smith</td>
+      <td>Timmy Thompson</td>
+      <td>Python</td>
+      <td><a href="TBC">Edit</a> / <a href="TBC">Delete</a></td>
+    </tr>
+
+    <tr>
+      <td>1/1/2025</td>
+      <td>15:00</td>
+      <td>James Smith</td>
+      <td>Sally Jones</td>
+      <td>Python</td>
+      <td><a href="TBC">Edit</a> / <a href="TBC">Delete</a></td>
+    </tr>
+
+    <tr>
+      <td>1/1/2025</td>
+      <td>17:30</td>
+      <td>John Doe</td>
+      <td>Sally Jones</td>
+      <td>Java</td>
+      <td><a href="TBC">Edit</a> / <a href="TBC">Delete</a></td>
+    </tr>
+
+    <tr>
+      <td>2/1/2025</td>
+      <td>11:30</td>
+      <td>John Doe</td>
+      <td>Tony Tony</td>
+      <td>C++</td>
+      <td><a href="TBC">Edit</a> / <a href="TBC">Delete</a></td>
+    </tr>
+
+    <tr>
+      <td>2/1/2025</td>
+      <td>13:00</td>
+      <td>John Doe</td>
+      <td>Jim Jimson</td>
+      <td>Java</td>
+      <td><a href="TBC">Edit</a> / <a href="TBC">Delete</a></td>
+    </tr>
+
+    <!--end temp-->
+
+    {% for booking in bookingData%}
+    <!--Display each entry of Confirmed Bookings in table format-->
+    <tr>
+      <td>{{booking.booking_date}}</td>
+      <td>{{booking.booking_time}}</td>
+      <td>{{booking.tutor.full_name}}</td>
+      <td>{{booking.student.full_name}}</td>
+      <td>{{booking.subject}}</td>
+      <td><a href="TBC">Edit</a> / <a href="TBC">Delete</a></td> 
+      <!-- use {% url 'update_booking' id %} for edit hyperlink-->
     </tr>
     {% endfor %}
   </table>
