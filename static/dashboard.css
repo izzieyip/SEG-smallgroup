@@ -1,8 +1,18 @@
 .custom-header {
-  background-color: #d4edda; /* Light green background */
-  padding: 15px 20px; /* Padding to make the header look nice */
-  border: none; /* No border */
-  border-radius: 5px; /* rounded corners */
-  color: #155724; /* Dark green text color */
-  font-size: 2rem; /* Adjust font size as needed */
+    color: #155724; /* Dark green text color */
+    font-size: 2rem; /* Adjust font size as needed */
+}
+
+.custom-text {
+    color: #155724; /* Dark green text color */
+    font-size: 1rem; /* Adjust font size as needed */
+}
+
+.container {
+    margin-top: 200px;
+    margin-bottom: 20px;
+    background-color: #d4edda; /* Light green background */
+    padding: 15px 40px; /* Padding to make the header look nice */
+    border: none; /* No border */
+    border-radius: 15px; /* rounded corners */
 }
