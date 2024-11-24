@@ -3,6 +3,7 @@ from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from libgravatar import Gravatar
+import datetime
 
 class User(AbstractUser):
     """Model used for user authentication, and team member related information."""
@@ -106,19 +107,18 @@ class Availability(models.Model):
 #Refers to objects of the student class
 #Student is a foreign key to student ID
 #can access the data using "student = Student.objects.get(id="THE ID NUMBER")"
-class Pending_booking(models.Model):
+class Booking_requests(models.Model):
     #on_delete=models.CASCADE ensure if a student is removed from the students model, their pending bookings are deleted too
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="pending_bookings")
-    booking_date = models.DateField()
-    booking_time = models.TimeField()
     subject = models.CharField(choices = Skills, max_length= 3)
+    isConfirmed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Booking Pending for: {self.student} on {self.booking_date} at {self.booking_time}, wants to learn {self.subject}."
 
     #ensures each one is unique
     class Meta:
-        unique_together = ('student', 'booking_date', 'booking_time')
+        unique_together = ('student', 'subject')
 
 #Confirmed Bookings class (tutor assigned)
 #Refers to objects of the tutor and Pending_booking classes
@@ -127,12 +127,21 @@ class Pending_booking(models.Model):
 #can access the data using "booking = Pending_booking.objects.get(id="THE ID NUMBER")"
 class Confirmed_booking(models.Model):
     #on_delete=models.CASCADE ensure if a student is removed from the students model, their pending bookings are deleted too
-    booking = models.ForeignKey(Pending_booking, on_delete=models.CASCADE, related_name="confirmed_booking")
+    booking = models.ForeignKey(Booking_requests, on_delete=models.CASCADE, related_name="confirmed_booking")
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name="confirmed_bookings")
+    booking_date = models.DateField(default=datetime.date.today)
+    booking_time = models.TimeField(default=datetime.time(12, 0))
+    
+    #updates the booking reqeust confirmed
+    def save(self, *args, **kwargs):
+        # Update the confirmed field of the related booking object in the booking_request model
+        self.booking.isConfirmed = True
+        self.booking.save()  # Save the updated Booking_requests instance
+        super().save(*args, **kwargs)  # Save the Confirmed_booking instance
 
     def __str__(self):
-        return f"Booking: {self.booking.student} with {self.tutor} on {self.booking.booking_date} at {self.booking.booking_time}, learning {self.booking.subject}."
+        return f"Booking: {self.booking.student.full_name} with {self.tutor.full_name} on {self.booking_date} at {self.booking_time}, learning {self.booking.subject}."
 
     #ensures each one is unique
     class Meta:
-        unique_together = ('booking', 'tutor')
+        unique_together = ('booking', 'tutor', 'booking_date', 'booking_time')
