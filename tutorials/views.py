@@ -11,7 +11,8 @@ from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest
 from tutorials.helpers import login_prohibited
-from tutorials.models import Pending_booking
+from tutorials.models import Booking_requests, Confirmed_booking
+from django.db.models import Q
 
 
 @login_required
@@ -161,8 +162,7 @@ class SignUpView(LoginProhibitedMixin, FormView):
     #template_name = "view_bookings.html"
 
 def ViewBookingsView(request):
-
-    booking_data = Pending_booking.objects.all()
+    booking_data = Booking_requests.objects.all()
     context = {'tableInfo':booking_data}
     return render(request, 'view_bookings.html', context)
 
@@ -175,3 +175,30 @@ def CreatingBookingRequest(request):
 
 
 
+
+
+#task 5 booking searching
+#this function is to be assinged to the search button and takes the input of the search bar
+#depending on what results are needed, call the respective booking function
+def search_booking_requests(query):
+    if not query:
+        # If query is empty or None, return all bookings or handle as needed
+        return Booking_requests.objects.all()
+
+    bookings = Booking_requests.objects.filter(
+        Q(student__full_name__icontains=query) |
+        Q(subject__icontains=query)
+    )
+    return bookings
+
+def search_confirmed_requests(query):
+    if not query:
+        # If query is empty or None, return no results
+        return Confirmed_booking.objects.all()
+
+    bookings = Confirmed_booking.objects.filter(
+        Q(tutor__full_name__icontains=query) |
+        Q(booking__student__full_name__icontains=query) |
+        Q(booking_date__icontains=query)
+    )
+    return bookings
