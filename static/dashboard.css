@@ -8,6 +8,10 @@
     font-size: 1rem; /* Adjust font size as needed */
 }
 
+.container:first-of-type {
+  margin-bottom: 600000px; /* Increase the space between the two containers */
+}
+
 .container {
     margin-top: 200px;
     margin-bottom: 20px;
