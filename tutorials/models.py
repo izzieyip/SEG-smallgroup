@@ -78,29 +78,18 @@ difficulty_levels = [
     (5, '5')
 ]
 
-
 class Student(User):
-    skill_to_learn = models.CharField(choices = Skills, max_length= 3)
-    difficulty_level = models.IntegerField(choices= difficulty_levels, default=None)
-
     def __str__(self) -> str:
         return super().__str__() + f'wants to learn {self.skill_to_learn} at difficulty level {self.difficulty_level}'
 
 class Tutor(User):
     skills = models.CharField(choices = Skills, max_length= 3)
     experience_level = models.IntegerField(choices= difficulty_levels, default=None)
+    available_days = models.CharField(choices=days, max_length=3)
+    available_times = models.IntegerField(choices=times)
 
     def __str__(self) -> str:
         return super().__str__() + f'knows {self.skills} with an experience level of {self.experience_level}'
-
-
-class Availability(models.Model):
-    tutor_id = models.ForeignKey(Tutor, on_delete=models.CASCADE)
-    available_day = models.CharField(choices=days, max_length=3)
-    available_time = models.IntegerField(choices=times)
-
-    def __str__(self) -> str:
-        return f'{self.tutor_id.first_name} is available at {self.available_day} for the {self.available_time}'
 
 
 #Pending Bookings class (no tutor assigned)
@@ -111,6 +100,7 @@ class Booking_requests(models.Model):
     #on_delete=models.CASCADE ensure if a student is removed from the students model, their pending bookings are deleted too
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="pending_bookings")
     subject = models.CharField(choices = Skills, max_length= 3)
+    difficulty = models.IntegerField(choices= difficulty_levels, default=None)
     isConfirmed = models.BooleanField(default=False)
 
     def __str__(self):
