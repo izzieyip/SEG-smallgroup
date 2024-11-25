@@ -85,8 +85,8 @@ class Student(User):
 class Tutor(User):
     skills = models.CharField(choices = Skills, max_length= 3, default=None)
     experience_level = models.IntegerField(choices= difficulty_levels, default=None)
-    available_days = models.CharField(choices=days, max_length=3)
-    available_times = models.IntegerField(choices=times)
+    available_days = models.CharField(choices=days, max_length=3,default=None)
+    available_times = models.IntegerField(choices=times,default=None)
 
     def __str__(self) -> str:
         return super().__str__() + f'knows {self.skills} with an experience level of {self.experience_level}'
