@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import Booking_requests, User
+from .models import Booking_requests, User, Student
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -116,11 +116,13 @@ class CreateBookingRequest(forms.ModelForm):
     class Meta:
 
         model = Booking_requests
-        fields = ['subject', 'difficulty']
+        fields = ['student','subject', 'difficulty']
+
 
     def save(self):
         """Create a new booking request"""
 
         super().save()
-        booking = Booking_requests.objects.create(subject = self.cleaned_data.get("subject"), difficulty = self.cleaned_data.get("difficulty"))
+        student1 = Student.objects.get(username = self.cleaned_data.get('username'))
+        booking = Booking_requests.objects.create(student = student1, subject = self.cleaned_data.get("subject"), difficulty = self.cleaned_data.get("difficulty"))
         return booking
