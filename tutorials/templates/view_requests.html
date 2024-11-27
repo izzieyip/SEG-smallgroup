@@ -2,6 +2,7 @@
 {% block content %}
 <body>
     <h3>Booking Requests</h3>
+    <button type = 'button' class="btn btn-outline-secondary position-absolute top-0 end-0">Create a new request</button>
     <table class = "table">
         <thead class ='thead-light'>
             <tr>
@@ -20,7 +21,7 @@
             <td>{{ item.student.last_name }}</td>
             <td>{{ item.student.first_name }}</td>
             <td>{{ item.get_subject_display }}</td>
-            <td>{{ item.difficulty }}</td>
+            <td>{{ item.get_difficulty_display }}</td>
         </tr>
         {% endfor %}
     </table>
