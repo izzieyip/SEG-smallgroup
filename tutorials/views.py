@@ -203,6 +203,7 @@ def search_confirmed_requests(query):
     )
     return bookings
 
+# displaying the form to create a new booking request
 def CreatingBookingRequest(request):
     
     model = Booking_requests

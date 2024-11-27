@@ -110,8 +110,10 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
         return user
     
 
+
 class CreateBookingRequest(forms.ModelForm):
-    """Form for students to create new booking requests"""
+    """Form for admin to create new booking requests for a particular student based
+    on their username"""
 
     class Meta:
 
