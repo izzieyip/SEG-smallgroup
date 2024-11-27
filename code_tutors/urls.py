@@ -34,6 +34,7 @@ urlpatterns = [
     #path('view_bookings/<int:booking_id>), views. , name='view_booking_id'),
     path('create_booking/', views.createBooking, name='create_booking'),
     #path('update_booking/<int:booking_id>', views.updateBooking, name='update_booking'),
+    path('view_requests/', views.display_all_booking_requests, name='view_requests'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -248,3 +248,7 @@ def updateBooking(request): #bookingid?
     else:
         form = BookingForm() #instance=booking
     return render(request, 'update_booking.html', {'form': form})
+
+def display_all_booking_requests(request):
+    data = Booking_requests.objects.all()
+    return render(request, "view_requests.html", {"data": data})
