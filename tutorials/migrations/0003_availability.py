@@ -8,10 +8,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('tutorials', '0002_student_tutor'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='Availability',

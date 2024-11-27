@@ -45,9 +45,9 @@ class User(AbstractUser):
     
 Skills = [
     ("CPP", "C++"),
-    ("JA", "JAVA"),
-    ("PY", "PYTHON"),
-    ("DJ", "DJANGO")
+    ("JA", "Java"),
+    ("PY", "Python"),
+    ("DJ", "Django")
 ]
 
 days = [
@@ -80,7 +80,7 @@ difficulty_levels = [
 
 class Student(User):
     def __str__(self) -> str:
-        return super().__str__() + f'wants to learn {self.skill_to_learn} at difficulty level {self.difficulty_level}'
+        return super().__str__() 
 
 class Tutor(User):
     skills = models.CharField(choices = Skills, max_length= 3)
@@ -104,7 +104,7 @@ class Booking_requests(models.Model):
     isConfirmed = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Booking Pending for: {self.student} on {self.booking_date} at {self.booking_time}, wants to learn {self.subject}."
+        return f"Booking Pending for: {self.student} wants to learn {self.subject} at difficulty level {self.difficulty}."
 
     #ensures each one is unique
     class Meta:

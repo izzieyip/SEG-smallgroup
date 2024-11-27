@@ -13,7 +13,7 @@ from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, Booki
 from tutorials.helpers import login_prohibited
 from tutorials.models import Booking_requests, Confirmed_booking
 from django.db.models import Q
-from tutorials.models import Pending_booking, Confirmed_booking, Student, Tutor
+from tutorials.models import Confirmed_booking, Student, Tutor
 from django.http import HttpResponse, HttpResponseRedirect
 
 
