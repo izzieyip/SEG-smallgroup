@@ -150,6 +150,14 @@ class SignUpView(LoginProhibitedMixin, FormView):
     template_name = "sign_up.html"
     redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
 
+    def get_form_kwargs(self):
+        """Pass `POST` data to the form for dynamic field updates so that it can change the form
+        if user selects that they are a tutor"""
+        kwargs = super().get_form_kwargs()
+        if self.request.method == 'POST':
+            kwargs['data'] = self.request.POST
+        return kwargs
+
     def form_valid(self, form):
         self.object = form.save()
         login(self.request, self.object)

@@ -22,6 +22,25 @@
             <td>{{ item.student.first_name }}</td>
             <td>{{ item.get_subject_display }}</td>
             <td>{{ item.get_difficulty_display }}</td>
+            <td> <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#match_with_tutor">Mark as confirmed</button></td>
+            <div class="modal fade" id="match_with_tutor" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Select a tutor</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            It would be cool if we had a dropdown with all the tutors here
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes and mark as confirmed</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         </tr>
         {% endfor %}
     </table>

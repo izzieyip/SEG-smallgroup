@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Confirmed_booking
+from .models import User, Confirmed_booking, Student, Tutor
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -88,28 +88,59 @@ class PasswordForm(NewPasswordMixin):
         return self.user
 
 
-class SignUpForm(NewPasswordMixin, forms.ModelForm):
+class SignUpForm(forms.ModelForm):
     """Form enabling unregistered users to sign up."""
+    userType = forms.ChoiceField(choices=[('S', 'Student'), ('T', 'Tutor')], required=True, label="Type of User")
 
     class Meta:
-        """Form options."""
+        model = Student
+        fields = ['userType', 'first_name', 'last_name', 'username', 'email']
 
-        model = User
-        fields = ['first_name', 'last_name', 'username', 'email']
+    def __init__(self, *args, **kwargs):
+        # Retrieve the data passed to the form
+        data = kwargs.get('data', {})
+        userType = data.get('userType')
+        super().__init__(*args, **kwargs)
 
-    def save(self):
-        """Create a new user."""
+        # Dynamically update fields based on userType
+        if userType == 'T':
+            self.fields.update(forms.models.fields_for_model(
+                Tutor,
+                fields=['first_name', 'last_name', 'username', 'email', 'skills', 'experience_level', 'available_days', 'available_times']
+            ))
+        elif userType == 'S':
+            self.fields.update(forms.models.fields_for_model(
+                Student,
+                fields=['first_name', 'last_name', 'username', 'email']
+            ))
 
-        super().save(commit=False)
+    def save(self, commit=True):
+        """Create a new user of the selected type."""
+        userType = self.cleaned_data['userType']
         user = User.objects.create_user(
-            self.cleaned_data.get('username'),
-            first_name=self.cleaned_data.get('first_name'),
-            last_name=self.cleaned_data.get('last_name'),
-            email=self.cleaned_data.get('email'),
+            self.cleaned_data['username'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            email=self.cleaned_data['email'],
             password=self.cleaned_data.get('new_password'),
         )
+
+        if userType == 'T':
+            tutor = Tutor.objects.create(
+                user=user,
+                skills=self.cleaned_data.get('skills'),
+                experience_level=self.cleaned_data.get('experience_level'),
+                available_days=self.cleaned_data.get('available_days'),
+                available_times=self.cleaned_data.get('available_times'),
+            )
+            return tutor
+        elif userType == 'S':
+            student = Student.objects.create(user=user)
+            return student
+
         return user
-    
+
+        
 skills = [
     ("CPP", "C++"),
     ("JA", "JAVA"),
