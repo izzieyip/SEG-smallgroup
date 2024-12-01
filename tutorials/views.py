@@ -155,6 +155,7 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
     
 
+#NEEDS TO BE A CLASS TO HAVE DELETE FUNCTION
 @login_required
 def ViewBookingsView(request): 
     ''' UNCOMMENT BELOW WHEN ADMIN USERS ARE IMPLEMENTED
@@ -165,5 +166,18 @@ def ViewBookingsView(request):
     booking_data = Confirmed_booking.objects.all() #Fetch Database info for all bookings
     context = {'bookingData':booking_data}
     return render(request, 'view_bookings.html', context)
+
+#needs import model and the data when merged 
+"""
+@login_required
+def ViewInvoices(request): 
+    ''' UNCOMMENT BELOW WHEN ADMIN USERS ARE IMPLEMENTED
+    #Block permission if the user is not an Admin
+    if not request.user.is_superuser == True:
+        return render(request, 'permission_denied.html') '''
+
+    invoice_data = Invoice.objects.get( ) #Fetch all invoices that are outstanding
+    context = {'invoiceData':invoice_data}
+    return render(request, 'invoices.html', context) """
 
     
