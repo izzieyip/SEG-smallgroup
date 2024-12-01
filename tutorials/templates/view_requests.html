@@ -1,48 +1,81 @@
 {% extends 'base_content.html' %}
 {% block content %}
-<body>
-    <h3>Booking Requests</h3>
-    <button type = 'button' class="btn btn-outline-secondary position-absolute top-0 end-0">Create a new request</button>
-    <table class = "table">
-        <thead class ='thead-light'>
-            <tr>
-                <th scope="col">Request ID</th>
-                <th scope="col">Username</th>
-                <th scope="col">First Name</th>
-                <th scope="col">Last Name</th>
-                <th scope="col">Skill</th>
-                <th scope="col">Difficulty level</th>
-            </tr>
-        </thead>
-        {% for item in data %}
-        <tr>
-            <td>{{ item.id }}</td>
-            <td>{{ item.student.username }}</td>
-            <td>{{ item.student.last_name }}</td>
-            <td>{{ item.student.first_name }}</td>
-            <td>{{ item.get_subject_display }}</td>
-            <td>{{ item.get_difficulty_display }}</td>
-            <td> <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#match_with_tutor">Mark as confirmed</button></td>
-            <div class="modal fade" id="match_with_tutor" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Select a tutor</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="container">
+    <div class="row">
+        <!-- First Column -->
+        <div class="col-md-6">
+            <h3>Booking Requests</h3>
+            <div style="max-height: 500px; overflow-y: auto;">
+                <ul class="list-group">
+                    {% for item in data %}
+                    <li class="list-group-item">
+                        <strong>Request ID:</strong> {{ item.id }}<br>
+                        <strong>Username:</strong> {{ item.student.username }}<br>
+                        <strong>First Name:</strong> {{ item.student.first_name }}<br>
+                        <strong>Last Name:</strong> {{ item.student.last_name }}<br>
+                        <strong>Skill:</strong> {{ item.get_subject_display }}<br>
+                        <strong>Difficulty Level:</strong> {{ item.get_difficulty_display }}<br>
+                        <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#match_with_tutor_{{ item.id }}">Confirm Booking</button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="match_with_tutor_{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Select a tutor</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        It would be cool if we had a dropdown with all the tutors here
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary">Save changes and mark as confirmed</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="modal-body">
-                            It would be cool if we had a dropdown with all the tutors here
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes and mark as confirmed</button>
-                        </div>
-                    </div>
-                </div>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
+
+        <!-- Second Column -->
+        <div class="col-md-6">
+            <h3>Tutors</h3>
+            <div style="max-height: 500px; overflow-y: auto;">
+                <ul class="list-group">
+                    {% for item in data2 %}
+                    <li class="list-group-item">
+                        <strong>Tutor ID:</strong> {{ item.id }}<br>
+                        <strong>Skills:</strong> {{ item.skills }}<br>
+                        <strong>Experience:</strong> {{ item.experience_level }}<br>
+                        <strong>Days:</strong> {{ item.available_days }}<br>
+                        <strong>Times:</strong> {{ item.available_times }}<br>
+                        <!-- Modal -->
+                        <div class="modal fade" id="match_with_tutor_{{ item.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Select a tutor</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        It would be cool if we had a dropdown with all the tutors here
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary">Save changes and mark as confirmed</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

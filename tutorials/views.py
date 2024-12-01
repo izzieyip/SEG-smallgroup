@@ -259,4 +259,5 @@ def updateBooking(request): #bookingid?
 
 def display_all_booking_requests(request):
     data = Booking_requests.objects.all()
-    return render(request, "view_requests.html", {"data": data})
+    data2 = Tutor.objects.all()
+    return render(request, "view_requests.html", {"data": data, "data2": data2})
