@@ -89,7 +89,7 @@ class Tutor(User):
     available_times = models.IntegerField(choices=times,default=None)
 
     def __str__(self) -> str:
-        return super().__str__() + f'knows {self.skills} with an experience level of {self.experience_level}'
+        return super().__str__() + f' knows {dict(Skills)[self.skills]} with an experience level of {dict(difficulty_levels)[self.experience_level]} and is available on {dict(days)[self.available_days]} {dict(times)[self.available_times]}'
 
 
 #Pending Bookings class (no tutor assigned)

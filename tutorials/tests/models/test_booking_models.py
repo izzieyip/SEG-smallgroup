@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Booking_requests, Confirmed_booking, Student, Tutor
+from tutorials.models import Booking_requests, Confirmed_booking, Student, Tutor
 from datetime import date, time
 
 class BookingRequestsTestCase(TestCase):
