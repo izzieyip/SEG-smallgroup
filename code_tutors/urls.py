@@ -32,6 +32,7 @@ urlpatterns = [
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
     path('view_bookings/', views.ViewBookingsView, name='view_bookings'),
     #path('view_bookings/<int:booking_id>), views. , name='view_booking_id'),
+    path('invoices/', views.ViewInvoices, name='invoices'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
