@@ -6,11 +6,8 @@ from tutorials.models import User
 class Display_all_booking_requestsViewTestCase(TestCase):
     """Tests of the display_all_booking_requests view."""
 
-    fixtures = ['tutorials/tests/fixtures/default_user.json']
-
     def setUp(self):
         self.url = reverse('view_requests')
-        self.user = User.objects.get(username='@johndoe')
 
     def test_view_requests_url(self):
         self.assertEqual(self.url,'/view_requests/')
