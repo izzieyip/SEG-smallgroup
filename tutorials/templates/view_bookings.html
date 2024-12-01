@@ -36,12 +36,12 @@
       <!-- Manage Buttons -->
       <td>
         <a href="TBC" class="btn btn-warning">Edit</a> /
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm">Delete</button>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ confirmedBooking.id }}">Delete</button>
       </td>
       <!-- use { url 'update_booking' id } with % for edit hyperlink-->
 
       <!-- Repeating Modal for delete button -->
-      <div class="modal fade" id="deleteConfirm" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+      <div class="modal fade" id="deleteConfirm{{ confirmedBooking.id }}" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -53,7 +53,11 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-danger">Delete</button>
+              <!-- Form button to call delete booking urlpath -->
+              <form action="{% url 'delete_booking' confirmedBooking.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
             </div>
           </div>
         </div>
