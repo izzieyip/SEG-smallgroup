@@ -10,6 +10,7 @@ class SignUpFormTestCase(TestCase):
 
     def setUp(self):
         self.form_input = {
+            'userType' : 'S',
             'first_name': 'Jane',
             'last_name': 'Doe',
             'username': '@janedoe',
@@ -24,6 +25,7 @@ class SignUpFormTestCase(TestCase):
 
     def test_form_has_necessary_fields(self):
         form = SignUpForm()
+        self.assertIn('userType', form.fields)
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
         self.assertIn('username', form.fields)

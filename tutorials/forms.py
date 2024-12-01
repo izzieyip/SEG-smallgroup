@@ -88,6 +88,7 @@ class PasswordForm(NewPasswordMixin):
         return self.user
 
 
+
 class SignUpForm(forms.ModelForm):
     """Form enabling unregistered users to sign up."""
     userType = forms.ChoiceField(choices=[('S', 'Student'), ('T', 'Tutor')], required=True, label="Type of User")
