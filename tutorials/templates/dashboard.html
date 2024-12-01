@@ -2,81 +2,50 @@
 {% block content %}
 
 <div class="container">
-      <p class="custom-header">
+  <div class="row g-4">
+    <div class="col-12">
+      <h1 class="custom-header">
         Welcome to your dashboard {{ user.username }}
-      </p>
-      <p class="custom-text">
-        Here you can check bookings and support requests
-        -- This is the admin interface for CodeTutors
-      </p>
+      </h1>
+    </div>
+  </div>
 </div>
 
 <div class="container">
   <div class="row mb-4">
-    <div class="col-sm-4 mb-3 mb-sm-0">
-      <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">View a Booking</h5>
-        <p class="card-text">Click here to see all student-tutor bookings</p>
-        <a href="#" class="btn btn-outline-primary w-100">View a Booking</a>
+    <div class="col-4">
+      <div class="btn-group w-100">
+        <button type="button" class="btn btn-outline-primary w-100">View a Booking</button>
       </div>
     </div>
-    </div>
-
-    <div class="col-sm-4 mb-3 mb-sm-0">
-      <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Create a Booking</h5>
-        <p class="card-text">Click here to create a new lesson booking</p>
-        <a href="#" class="btn btn-outline-secondary w-100">Create a Booking</a>
+    <div class="col-4">
+      <div class="btn-group w-100">
+        <button type="button" class="btn btn-outline-secondary w-100">Create a Booking</button>
       </div>
     </div>
-    </div>
-
-    <div class="col-sm-4">
-      <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Update a booking</h5>
-        <p class="card-text">Click here to view all bookings and make changes</p>
-        <a href="#" class="btn btn-outline-success w-100">Update a Booking</a>
+    <div class="col-4">
+      <div class="btn-group w-100">
+        <button type="button" class="btn btn-outline-success w-100">Update a Booking</button>
       </div>
     </div>
   </div>
-  </div>
-
-
   <div class="row mb-4">
-    <div class="col-sm-4 mb-3 mb-sm-0">
-      <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">View Invoices</h5>
-        <p class="card-text">Click here to see all student invoices and due dates</p>
-        <a href="#" class="btn btn-outline-danger w-100">View Invoices</a>
+    <div class="col-4">
+      <div class="btn-group w-100">
+        <button type="button" class="btn btn-outline-danger w-100">View Invoices</button>
       </div>
     </div>
-    </div>
-
-    <div class="col-sm-4 mb-3 mb-sm-0">
-      <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Edit / View a User</h5>
-        <p class="card-text">Click here to see all users and make changes</p>
-        <a href="#" class="btn btn-outline-warning w-100">Edit / View a User</a>
+    <div class="col-4">
+      <div class="btn-group w-100">
+        <button type="button" class="btn btn-outline-warning w-100">Edit / View a User</button>
       </div>
     </div>
-    </div>
-
-    <div class="col-sm-4">
-      <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">View Support Requests</h5>
-        <p class="card-text">Click here to see all support request forms from users</p>
-        <a href="#" class="btn btn-outline-info w-100">View Support Requests</a>
+    <div class="col-4">
+      <div class="btn-group w-100">
+        <button type="button" class="btn btn-outline-info w-100">View Support Requests</button>
       </div>
     </div>
-  </div>
   </div>
 </div>
 
 {% endblock %}
-
