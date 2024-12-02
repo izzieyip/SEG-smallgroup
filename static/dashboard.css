@@ -1,5 +1,6 @@
 
 
+
 .custom-header {
     color: #155724; /* Dark green text color */
     font-size: 2rem; /* Adjust font size as needed */
@@ -18,3 +19,4 @@
     border-radius: 5px; /* rounded corners */
     padding: 30px; /* Adds space between the edges and the text in the container*/
 }
+
