@@ -87,7 +87,7 @@ class Command(BaseCommand):
 
 
     def create_fakedata(self):
-        #self.generate_user_fixtures()
+        self.generate_user_fixtures()
         self.generate_random_users()
         self.generate_bookingrequests()
 
