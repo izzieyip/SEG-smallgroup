@@ -1,0 +1,12 @@
+
+.home-card{
+    outline: 1px solid black;
+}
+
+.home-container{
+    background-color: #d4edda; /* Light green background */
+}
+
+.cover-text{
+    font-weight: 400;
+}
