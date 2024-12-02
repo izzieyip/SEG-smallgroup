@@ -33,7 +33,8 @@ urlpatterns = [
     path('view_bookings/', views.ViewBookingsView, name='view_bookings'),
     path('request_booking/', views.CreatingBookingRequest, name='booking_request'),
     #path('view_bookings/<int:booking_id>), views. , name='view_booking_id'),
-    
-]
+    path('create_booking/', views.createBooking, name='create_booking'),
+    #path('update_booking/<int:booking_id>', views.updateBooking, name='update_booking'),
+
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

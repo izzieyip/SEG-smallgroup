@@ -9,10 +9,10 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
-from tutorials.models import Booking_requests, Confirmed_booking
-from django.db.models import Q
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
+from django.http import HttpResponse, HttpResponseRedirect
 
 
 @login_required
@@ -193,6 +193,7 @@ def search_confirmed_requests(query):
     return bookings
 
 
+
 # displaying the form to create a new booking request
 def CreatingBookingRequest(request):
     
@@ -201,4 +202,51 @@ def CreatingBookingRequest(request):
     template_name = "create_booking_requests.html"
     return render(request, template_name,  context = {'form':form_class})
 
+
+def createBooking(request):
+    if request.method == "POST":
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            studentuser = form.cleaned_data['student']
+            subject = form.cleaned_data['subject']
+            date = form.cleaned_data['date']
+            time = form.cleaned_data['time']
+            tutoruser = form.cleaned_data['tutor']
+            #search for bookingrequest object, search for tutor object
+            try:
+                ()
+                student = Student.objects.get(username=studentuser)
+                tutor = Tutor.objects.get(username=tutoruser)
+                bookingrequest = Booking_requests.objects.get(student=student, subject=subject)
+                booking = Confirmed_booking(booking=bookingrequest, tutor=tutor, booking_date=date, booking_time=time)
+                booking.save()
+            except:
+                form.add_error(None, "This request is not possible")
+            else:
+                path = reverse('dashboard')
+                return HttpResponseRedirect(path)
+    else:
+        form = BookingForm()
+    return render(request, 'create_booking.html', {'form': form})
+
+
+def updateBooking(request, bookingid):
+
+    booking = Confirmed_booking.objects.get(id=bookingid)
+
+    if request.method == "POST":
+        form = BookingForm(request.POST, instance=booking) 
+        if form.is_valid():
+            try:
+                ()
+                booking.save()
+            except:
+                form.add_error(None, "Changes NOT saved - error occured.")
+            else:
+                path = reverse('dashboard')
+                return HttpResponseRedirect(path)
+            
+    else:
+        form = BookingForm(instance=booking)
+    return render(request, 'update_booking.html', {'form': form})
 
