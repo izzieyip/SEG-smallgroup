@@ -35,4 +35,5 @@ urlpatterns = [
     #path('invoices/', views.ViewInvoices, name='invoices') (wip),
 ]
 
+
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
