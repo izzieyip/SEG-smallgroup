@@ -6,8 +6,7 @@
       <h1>All upcoming bookings.</h1>
     </div>
     <div class="col-4 d-grid gap-2 d-md-flex justify-content-md-end">
-      <button type="button" class="btn btn-outline-info btn-lg">Create a new Booking</button>
-      <!-- use <a href="{ url 'create_booking' } (with %)" class="button">Create a new Booking</a> for hyperlink -->
+      <button type="button" class="btn btn-outline-info btn-lg"><a href="{% url 'create_booking' %}" class="button">Create a new Booking</a></button>
     </div>
   </div>
   <table class="table table-striped">
@@ -34,7 +33,7 @@
 
       <!-- Manage Buttons -->
       <td>
-        <a href="TBC" class="btn btn-warning">Edit</a> /
+        <a href="{% url 'update_booking{{ confirmedBooking.id }}' %}" class="btn btn-warning">Edit</a> /
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ confirmedBooking.id }}">Delete</button>
       </td>
       <!-- use { url 'update_booking' id } with % for edit hyperlink-->
