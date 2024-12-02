@@ -8,6 +8,12 @@ from faker import Faker
 import random
 import datetime
 
+user_fixtures = [
+    {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe'},
+    {'username': '@janedoe', 'email': 'jane.doe@example.org', 'first_name': 'Jane', 'last_name': 'Doe'},
+    {'username': '@charlie', 'email': 'charlie.johnson@example.org', 'first_name': 'Charlie', 'last_name': 'Johnson'},
+]
+
 class Command(BaseCommand):
     """Build automation command to seed the database."""
 
@@ -50,27 +56,6 @@ class Command(BaseCommand):
     (5, "Afternoon and Evening"),
     (6, "Morning and Evening"),
     (7, "Whole day")
-    ]
-    
-
-    available_days = [
-        ("SUN", 'Sunday'),
-        ("MON", 'Monday'),
-        ("TUE", 'Tuesday'),
-        ("WED", 'Wednesday'),
-        ("THU", 'Thursday'),
-        ("FRI", 'Friday'),
-        ("SAT", 'Saturday')
-    ]
-
-    available_times = [
-        (1, "Morning"),
-        (2, "Afternoon"),
-        (3, "Evening"),
-        (4, "Morning and Afternoon"),
-        (5, "Afternoon and Evening"),
-        (6, "Morning and Evening"),
-        (7, "Whole day")
     ]
 
 
