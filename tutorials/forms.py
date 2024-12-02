@@ -135,10 +135,8 @@ class SignUpForm(forms.ModelForm):
             )
             return tutor
         elif userType == 'S':
-            student = Student.objects.create(user=user)
+            student = Student.objects.create(user=user,)
             return student
-
-        return user
     
 
 class CreateBookingRequest(forms.ModelForm):
