@@ -10,6 +10,11 @@ from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm
+from tutorials.helpers import login_prohibited
+from tutorials.models import Booking_requests, Confirmed_booking
+from django.db.models import Q
+from tutorials.models import Confirmed_booking, Student, Tutor
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
@@ -149,6 +154,14 @@ class SignUpView(LoginProhibitedMixin, FormView):
     template_name = "sign_up.html"
     redirect_when_logged_in_url = settings.REDIRECT_URL_WHEN_LOGGED_IN
 
+    def get_form_kwargs(self):
+        """Pass `POST` data to the form for dynamic field updates so that it can change the form
+        if user selects that they are a tutor"""
+        kwargs = super().get_form_kwargs()
+        if self.request.method == 'POST':
+            kwargs['data'] = self.request.POST
+        return kwargs
+
     def form_valid(self, form):
         self.object = form.save()
         login(self.request, self.object)
@@ -213,6 +226,25 @@ def search_confirmed_requests(query):
     )
     return bookings
 
+#"MyForm" palceholder for the create a confirmed booking form
+def create_multiple_objects(request):
+    if request.method == 'POST':
+        form = MyForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            #can add to the form if we want them to have ana option fo how many bookings they want
+            #number_of_objects = int(request.POST.get('number_of_objects', 1))  # Get the number from the request
+            objects = []
+            #number of bookings can be changed set to 10 for a term
+            for i in range(10):
+                obj = Confirmed_booking(tutor=data['tutorid'],booking_date=[i*7+startingdate])#fill according to form make it work
+                objects.append(obj)
+            Confirmed_booking.objects.bulk_create(objects)
+            return redirect('view_bookings.url')#repalce with correct url if wrong?
+    else:
+        form = MyForm()
+    #replace splitscreen.html with actual name
+    return render(request, 'splitscreen.html', {'form': form})
 
 
 # displaying the form to create a new booking request
@@ -270,3 +302,8 @@ def updateBooking(request, bookingid):
     else:
         form = BookingForm(instance=booking)
     return render(request, 'update_booking.html', {'form': form})
+
+def display_all_booking_requests(request):
+    data = Booking_requests.objects.all()
+    data2 = Tutor.objects.all()
+    return render(request, "view_requests.html", {"data": data, "data2": data2})

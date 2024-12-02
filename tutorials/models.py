@@ -106,7 +106,7 @@ class Booking_requests(models.Model):
     isConfirmed = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Booking Pending for: {self.student} to learn {self.subject} at difficulty level {self.difficulty}"
+        return f"Booking Pending for: {self.student} wants to learn {self.subject} at difficulty level {self.difficulty}."
 
     #ensures each one is unique
     class Meta:

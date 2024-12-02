@@ -1,10 +1,12 @@
+from django.core.management.base import BaseCommand
+from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking
 from django.core.management.base import BaseCommand, CommandError
-
 from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking
 
 import pytz
 from faker import Faker
 import random
+import datetime
 
 user_fixtures = [
     {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe'},
@@ -12,28 +14,29 @@ user_fixtures = [
     {'username': '@charlie', 'email': 'charlie.johnson@example.org', 'first_name': 'Charlie', 'last_name': 'Johnson'},
 ]
 
-
 class Command(BaseCommand):
     """Build automation command to seed the database."""
 
     USER_COUNT = 300
+    BOOKING_COUNT = 100
     DEFAULT_PASSWORD = 'Password123'
     help = 'Seeds the database with sample data'
 
     skills = [
-    ("CPP", "C++"),
-    ("JA", "JAVA"),
-    ("PY", "PYTHON"),
-    ("DJ", "DJANGO")
+        ("CPP", "C++"),
+        ("JA", "Java"),
+        ("PY", "Python"),
+        ("DJ", "Django")
     ]
 
     difficulty_levels = [
-    (1, '1'),
-    (2, '2'),
-    (3, '3'),
-    (4, '4'),
-    (5, '5')
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5')
     ]
+
 
     days = [
     ("SUN", 'Sunday'),
@@ -54,8 +57,6 @@ class Command(BaseCommand):
     (6, "Morning and Evening"),
     (7, "Whole day")
     ]
-    
-
 
 
     def __init__(self):
@@ -66,22 +67,18 @@ class Command(BaseCommand):
         self.users = User.objects.all()
         self.students = Student.objects.all()
         self.tutors = Tutor.objects.all()
+        self.create_bookings()
+        print("Database seeded successfully!")
+
 
     def create_fakedata(self):
-        #self.generate_user_fixtures()
+        self.generate_user_fixtures()
         self.generate_random_users()
         self.generate_bookingrequests()
 
-    def generate_user_fixtures(self):
+     def generate_user_fixtures(self):
         for data in user_fixtures:
             self.try_create_user(data)
-
-    def generate_user(self):
-        first_name = self.faker.first_name()
-        last_name = self.faker.last_name()
-        email = create_email(first_name, last_name)
-        username = create_username(first_name, last_name)
-        self.try_create_user({'username': username, 'email': email, 'first_name': first_name, 'last_name': last_name})
        
     def try_create_user(self, data):
         try:
@@ -98,9 +95,6 @@ class Command(BaseCommand):
             last_name=data['last_name'],
         )
 
-
-########################################################################################################################
-
     def generate_random_users(self):
         student_count = Student.objects.count()
         while student_count < self.USER_COUNT:
@@ -108,17 +102,13 @@ class Command(BaseCommand):
             self.generate_student()
             student_count = Student.objects.count()
 
-        #generate 300 tutors
-        tutorcount = Tutor.objects.count()
-        while tutorcount < self.USER_COUNT:
-            print(f"Seeding tutor {tutorcount}/{self.USER_COUNT}", end='\r')
+        tutor_count = Tutor.objects.count()
+        while tutor_count < self.USER_COUNT:
+            print(f"Seeding tutor {tutor_count}/{self.USER_COUNT}", end='\r')
             self.generate_tutor()
-            tutorcount = Tutor.objects.count()
+            tutor_count = Tutor.objects.count()
 
-        print("User seeding complete.      ")
-
-
-    #STUDENT
+    # STUDENT
     def generate_student(self):
         first_name = self.faker.first_name()
         last_name = self.faker.last_name()
@@ -131,26 +121,25 @@ class Command(BaseCommand):
     def try_create_student(self, data):
         try:
             self.create_student(data)
-        except:
-            print("failed")
-            pass
+        except Exception as e:
+            print(f"Failed to create student: {e}")
 
     def create_student(self, data):
         Student.objects.create_user(
             username=data['username'],
             email=data['email'],
-            password=Command.DEFAULT_PASSWORD,
+            password=self.DEFAULT_PASSWORD,
             first_name=data['first_name'],
             last_name=data['last_name']
         )
 
-    
-    #TUTOR
+    # TUTOR
     def generate_tutor(self):
         first_name = self.faker.first_name()
         last_name = self.faker.last_name()
         email = create_email(first_name, last_name)
         username = create_username(first_name, last_name)
+
         #tutor attributes
         skill = self.skills[random.randint(0,3)][0]
         level = self.difficulty_levels[random.randint(0,4)][0]
@@ -159,18 +148,18 @@ class Command(BaseCommand):
 
 
         self.try_create_tutor({'username': username, 'email': email, 'first_name': first_name, 'last_name': last_name, 'skills': skill, 'experience_level': level, 'available_days': day, 'available_times': time})
-       
+
     def try_create_tutor(self, data):
         try:
             self.create_tutor(data)
-        except:
-            pass
+        except Exception as e:
+            print(f"Failed to create tutor: {e}")
 
     def create_tutor(self, data):
         Tutor.objects.create_user(
             username=data['username'],
             email=data['email'],
-            password=Command.DEFAULT_PASSWORD,
+            password=self.DEFAULT_PASSWORD,
             first_name=data['first_name'],
             last_name=data['last_name'],
             skills=data['skills'],
@@ -252,8 +241,10 @@ class Command(BaseCommand):
     
 
 
+# Helper functions
 def create_username(first_name, last_name):
-        return '@' + first_name.lower() + last_name.lower()
+    return '@' + first_name.lower() + last_name.lower()
+
 
 def create_email(first_name, last_name):
-        return first_name + '.' + last_name + '@example.org'
+    return first_name.lower() + '.' + last_name.lower() + '@example.org'
