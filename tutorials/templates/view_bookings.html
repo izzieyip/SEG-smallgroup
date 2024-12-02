@@ -1,24 +1,70 @@
 {% extends 'base_content.html' %}
 {% block content %}
+
 <div class="container">
   <div class="row">
-    <div class="col-12">
-      <h1>View all existing bookings.</h1>
+    <div class="col-8">
+      <h1>All upcoming bookings.</h1>
+    </div>
+    <div class="col-4 d-grid gap-2 d-md-flex justify-content-md-end">
+      <button type="button" class="btn btn-outline-info btn-lg">Create a new Booking</button>
+      <!-- use <a href="{ url 'create_booking' } (with %)" class="button">Create a new Booking</a> for hyperlink -->
     </div>
   </div>
-  <table>
+  <table class="table table-striped">
     <tr>
-      <th>Column1</th>
-      <th>Column2</th>
-      <th>Column3</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Tutor</th>
+      <th>Student</th>
+      <th>Subject</th>
+      <th>Difficulty</th>
+      <th>Manage</th>
     </tr>
-    {% for booking in booking_data%}
+
+    {% for confirmedBooking in bookingData%}
+    <!--Display each entry of Confirmed Bookings in table format-->
     <tr>
-      <td>testing</td>
-      <td>...</td>
-      <td>...</td>
+      <!-- Base Data -->
+      <td>{{confirmedBooking.booking_date}}</td>
+      <td>{{confirmedBooking.booking_time}}</td>
+      <td>{{confirmedBooking.tutor.full_name}}</td>
+      <td>{{confirmedBooking.booking.student.full_name}}</td>
+      <td>{{confirmedBooking.booking.subject}}</td>
+      <td>{{confirmedBooking.booking.difficulty}}</td>
+
+      <!-- Manage Buttons -->
+      <td>
+        <a href="TBC" class="btn btn-warning">Edit</a> /
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ confirmedBooking.id }}">Delete</button>
+      </td>
+      <!-- use { url 'update_booking' id } with % for edit hyperlink-->
+
+      <!-- Repeating Modal for delete button -->
+      <div class="modal fade" id="deleteConfirm{{ confirmedBooking.id }}" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="deleteConfirmLabel">Delete Booking</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to cancel this booking and delete all of its data?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <!-- Form button to call delete booking urlpath -->
+              <form action="{% url 'delete_booking' confirmedBooking.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </tr>
     {% endfor %}
   </table>
 </div>
+
 {% endblock %}

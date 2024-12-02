@@ -7,12 +7,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
+from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
 from django.http import HttpResponse, HttpResponseRedirect
+
 
 
 @login_required
@@ -155,16 +157,35 @@ class SignUpView(LoginProhibitedMixin, FormView):
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
     
-#class ViewBookingsView(LoginRequiredMixin, View):
-    """Display all bookings in table format."""
 
-    #model = tbc
-    #template_name = "view_bookings.html"
+class ViewBookingsView(LoginRequiredMixin, ListView):
+    """Display the confirmed bookings as a table."""
+    
+    model = Confirmed_booking
+    template_name = 'view_bookings.html'
+    context_object_name = 'bookingData'
 
-def ViewBookingsView(request):
-    booking_data = Booking_requests.objects.all()
-    context = {'tableInfo':booking_data}
-    return render(request, 'view_bookings.html', context)
+    def delete_booking(request, id):
+        # used with delete button in manage table
+        obj = Confirmed_booking.objects.get(id=id)
+        obj.booking.delete() #delete Booking_requests object too
+        obj.delete()
+        return redirect('view_bookings')
+
+
+#UPDATE BELOW TO A CLASS
+#needs import model and the data when merged 
+"""
+@login_required
+def ViewInvoices(request): 
+    ''' UNCOMMENT BELOW WHEN ADMIN USERS ARE IMPLEMENTED
+    #Block permission if the user is not an Admin
+    if not request.user.is_superuser == True:
+        return render(request, 'permission_denied.html') '''
+
+    invoice_data = Invoice.objects.get( ) #Fetch all invoices that are outstanding
+    context = {'invoiceData':invoice_data}
+    return render(request, 'invoices.html', context) """
 
 #task 5 booking searching
 #this function is to be assinged to the search button and takes the input of the search bar
@@ -249,4 +270,3 @@ def updateBooking(request, bookingid):
     else:
         form = BookingForm(instance=booking)
     return render(request, 'update_booking.html', {'form': form})
-
