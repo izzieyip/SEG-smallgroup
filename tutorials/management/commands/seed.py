@@ -67,7 +67,6 @@ class Command(BaseCommand):
         self.users = User.objects.all()
         self.students = Student.objects.all()
         self.tutors = Tutor.objects.all()
-        self.create_bookings()
         print("Database seeded successfully!")
 
 
@@ -75,8 +74,10 @@ class Command(BaseCommand):
         self.generate_user_fixtures()
         self.generate_random_users()
         self.generate_bookingrequests()
+        self.generate_bookings()
 
-     def generate_user_fixtures(self):
+
+    def generate_user_fixtures(self):
         for data in user_fixtures:
             self.try_create_user(data)
        

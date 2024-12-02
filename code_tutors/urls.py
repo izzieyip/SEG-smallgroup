@@ -33,6 +33,7 @@ urlpatterns = [
     path('view_bookings/', views.ViewBookingsView.as_view(), name='view_bookings'),
     path('delete-booking/<int:id>/', views.ViewBookingsView.delete_booking, name='delete_booking'),
     path('create_booking/', views.createBooking, name='create_booking'),
+    path('view_requests/', views.display_all_booking_requests, name='view_requests'),
     #path('update_booking/<int:booking_id>', views.updateBooking, name='update_booking'),
     #path('invoices/', views.ViewInvoices, name='invoices') (wip),
 ]
