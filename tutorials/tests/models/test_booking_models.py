@@ -1,136 +1,175 @@
 from django.test import TestCase
-from tutorials.models import Student, Tutor, Pending_booking, Confirmed_booking
+from tutorials.models import Booking_requests, Confirmed_booking, Student, Tutor
 from datetime import date, time
 
-class BookingTests(TestCase):
-
+class BookingRequestsTestCase(TestCase):
     def setUp(self):
-        # Create sample data for testing
-        # TO DO: adjust to finalised tutor and student models
-        self.student = Student.objects.create(name="Alice", email="alice@example.com")
-        self.tutor = Tutor.objects.create(name="Mr. Smith", email="smith@example.com", subject="Math")
-        self.booking_date = date(2024, 12, 1)
-        self.booking_time = time(14, 0)
+        # Create a sample student
+        self.student = Student.objects.create(full_name="John Doe", email="johndoe@example.com")
 
-    def test_create_pending_booking(self):
-        # Test creating a Pending_booking instance
-        pending_booking = Pending_booking.objects.create(
+        # Create booking requests
+        self.booking1 = Booking_requests.objects.create(
             student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
+            subject="MAT",  # Assuming "MAT" is a valid choice in Skills
+            confirmed=False
         )
-        self.assertIsNotNone(pending_booking.id)
-        self.assertEqual(pending_booking.student, self.student)
-        self.assertEqual(pending_booking.booking_date, self.booking_date)
-        self.assertEqual(pending_booking.booking_time, self.booking_time)
 
-    def test_pending_booking_str_method(self):
-        # Test the __str__ method of Pending_booking
-        pending_booking = Pending_booking.objects.create(
+        self.booking2 = Booking_requests.objects.create(
             student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
+            subject="SCI",  # Another valid choice in Skills
+            confirmed=True
         )
-        expected_str = f"Booking Pending for: {self.student} on {self.booking_date} at {self.booking_time}"
-        self.assertEqual(str(pending_booking), expected_str)
 
-    def test_unique_pending_booking(self):
-        # Test that creating a duplicate Pending_booking raises an error
-        Pending_booking.objects.create(
-            student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
-        )
+    def test_booking_creation(self):
+        # Test that booking requests are created correctly
+        self.assertEqual(Booking_requests.objects.count(), 2)
+        self.assertEqual(self.booking1.student.full_name, "John Doe")
+        self.assertEqual(self.booking1.subject, "CPP")
+        self.assertFalse(self.booking1.confirmed)
+
+    def test_unique_together_constraint(self):
+        # Test that duplicate (student, subject) combinations are not allowed
         with self.assertRaises(Exception):
-            Pending_booking.objects.create(
+            Booking_requests.objects.create(
                 student=self.student,
-                booking_date=self.booking_date,
-                booking_time=self.booking_time
+                subject="CPP",
+                confirmed=False
             )
 
-    def test_create_confirmed_booking(self):
-        # Test creating a Confirmed_booking instance
-        pending_booking = Pending_booking.objects.create(
-            student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
-        )
-        confirmed_booking = Confirmed_booking.objects.create(
-            booking=pending_booking,
-            tutor=self.tutor
-        )
-        self.assertIsNotNone(confirmed_booking.id)
-        self.assertEqual(confirmed_booking.booking, pending_booking)
-        self.assertEqual(confirmed_booking.tutor, self.tutor)
+    def test_str_method(self):
+        # Test the string representation of a booking request
+        expected_str = f"Booking Pending for: {self.student} on None at None, wants to learn {self.booking1.subject}."
+        self.assertEqual(str(self.booking1), expected_str)
 
-    def test_confirmed_booking_str_method(self):
-        # Test the __str__ method of Confirmed_booking
-        pending_booking = Pending_booking.objects.create(
-            student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
-        )
-        confirmed_booking = Confirmed_booking.objects.create(
-            booking=pending_booking,
-            tutor=self.tutor
-        )
-        expected_str = f"Booking: {self.student} with {self.tutor} on {self.booking_date} at {self.booking_time}"
-        self.assertEqual(str(confirmed_booking), expected_str)
 
-    def test_unique_confirmed_booking(self):
-        # Test that creating a duplicate Confirmed_booking raises an error
-        pending_booking = Pending_booking.objects.create(
+class ConfirmedBookingTestCase(TestCase):
+    def setUp(self):
+        # Create a sample student and tutor
+        self.student = Student.objects.create(full_name="John Doe", email="johndoe@example.com")
+        self.tutor = Tutor.objects.create(full_name="Jane Smith", email="janesmith@example.com")
+
+        # Create a pending booking request
+        self.booking_request = Booking_requests.objects.create(
             student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
+            subject="CPP",
+            confirmed=False
         )
-        Confirmed_booking.objects.create(
-            booking=pending_booking,
-            tutor=self.tutor
+
+        # Create a confirmed booking
+        self.confirmed_booking = Confirmed_booking.objects.create(
+            booking=self.booking_request,
+            tutor=self.tutor,
+            booking_date=date(2024, 11, 18),
+            booking_time=time(14, 30)
         )
+
+    def test_confirmed_booking_creation(self):
+        # Test that the confirmed booking is created correctly
+        self.assertEqual(Confirmed_booking.objects.count(), 1)
+        self.assertEqual(self.confirmed_booking.booking, self.booking_request)
+        self.assertEqual(self.confirmed_booking.tutor.full_name, "Jane Smith")
+        self.assertEqual(self.confirmed_booking.booking_date, date(2024, 11, 18))
+        self.assertEqual(self.confirmed_booking.booking_time, time(14, 30))
+
+    def test_unique_together_constraint(self):
+        # Test that duplicate (booking, tutor, booking_date, booking_time) combinations are not allowed
         with self.assertRaises(Exception):
             Confirmed_booking.objects.create(
-                booking=pending_booking,
-                tutor=self.tutor
+                booking=self.booking_request,
+                tutor=self.tutor,
+                booking_date=date(2024, 11, 18),
+                booking_time=time(14, 30)
             )
 
-    def test_delete_student_cascade(self):
-        # Test that deleting a student deletes related Pending_booking instances
-        pending_booking = Pending_booking.objects.create(
-            student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
-        )
-        self.student.delete()
-        with self.assertRaises(Pending_booking.DoesNotExist):
-            Pending_booking.objects.get(id=pending_booking.id)
+    def test_str_method(self):
+        # Test the string representation of a confirmed booking
+        expected_str = f"Booking: {self.student.full_name} with {self.tutor.full_name} on 2024-11-18 at 14:30:00, learning {self.booking_request.subject}."
+        self.assertEqual(str(self.confirmed_booking), expected_str)
+=======
+from django.test import TestCase
+from .models import Booking_requests, Confirmed_booking, Student, Tutor
+from datetime import date, time
 
-    def test_delete_pending_booking_cascade(self):
-        # Test that deleting a Pending_booking deletes related Confirmed_booking instances
-        pending_booking = Pending_booking.objects.create(
-            student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
-        )
-        confirmed_booking = Confirmed_booking.objects.create(
-            booking=pending_booking,
-            tutor=self.tutor
-        )
-        pending_booking.delete()
-        with self.assertRaises(Confirmed_booking.DoesNotExist):
-            Confirmed_booking.objects.get(id=confirmed_booking.id)
+class BookingRequestsTestCase(TestCase):
+    def setUp(self):
+        # Create a sample student
+        self.student = Student.objects.create(full_name="John Doe", email="johndoe@example.com")
 
-    def test_delete_tutor_cascade(self):
-        # Test that deleting a tutor deletes related Confirmed_booking instances
-        pending_booking = Pending_booking.objects.create(
+        # Create booking requests
+        self.booking1 = Booking_requests.objects.create(
             student=self.student,
-            booking_date=self.booking_date,
-            booking_time=self.booking_time
+            subject="MAT",  # Assuming "MAT" is a valid choice in Skills
+            confirmed=False
         )
-        confirmed_booking = Confirmed_booking.objects.create(
-            booking=pending_booking,
-            tutor=self.tutor
+
+        self.booking2 = Booking_requests.objects.create(
+            student=self.student,
+            subject="SCI",  # Another valid choice in Skills
+            confirmed=True
         )
-        self.tutor.delete()
-        with self.assertRaises(Confirmed_booking.DoesNotExist):
-            Confirmed_booking.objects.get(id=confirmed_booking.id)
+
+    def test_booking_creation(self):
+        # Test that booking requests are created correctly
+        self.assertEqual(Booking_requests.objects.count(), 2)
+        self.assertEqual(self.booking1.student.full_name, "John Doe")
+        self.assertEqual(self.booking1.subject, "CPP")
+        self.assertFalse(self.booking1.confirmed)
+
+    def test_unique_together_constraint(self):
+        # Test that duplicate (student, subject) combinations are not allowed
+        with self.assertRaises(Exception):
+            Booking_requests.objects.create(
+                student=self.student,
+                subject="CPP",
+                confirmed=False
+            )
+
+    def test_str_method(self):
+        # Test the string representation of a booking request
+        expected_str = f"Booking Pending for: {self.student} on None at None, wants to learn {self.booking1.subject}."
+        self.assertEqual(str(self.booking1), expected_str)
+
+
+class ConfirmedBookingTestCase(TestCase):
+    def setUp(self):
+        # Create a sample student and tutor
+        self.student = Student.objects.create(full_name="John Doe", email="johndoe@example.com")
+        self.tutor = Tutor.objects.create(full_name="Jane Smith", email="janesmith@example.com")
+
+        # Create a pending booking request
+        self.booking_request = Booking_requests.objects.create(
+            student=self.student,
+            subject="CPP",
+            confirmed=False
+        )
+
+        # Create a confirmed booking
+        self.confirmed_booking = Confirmed_booking.objects.create(
+            booking=self.booking_request,
+            tutor=self.tutor,
+            booking_date=date(2024, 11, 18),
+            booking_time=time(14, 30)
+        )
+
+    def test_confirmed_booking_creation(self):
+        # Test that the confirmed booking is created correctly
+        self.assertEqual(Confirmed_booking.objects.count(), 1)
+        self.assertEqual(self.confirmed_booking.booking, self.booking_request)
+        self.assertEqual(self.confirmed_booking.tutor.full_name, "Jane Smith")
+        self.assertEqual(self.confirmed_booking.booking_date, date(2024, 11, 18))
+        self.assertEqual(self.confirmed_booking.booking_time, time(14, 30))
+
+    def test_unique_together_constraint(self):
+        # Test that duplicate (booking, tutor, booking_date, booking_time) combinations are not allowed
+        with self.assertRaises(Exception):
+            Confirmed_booking.objects.create(
+                booking=self.booking_request,
+                tutor=self.tutor,
+                booking_date=date(2024, 11, 18),
+                booking_time=time(14, 30)
+            )
+
+    def test_str_method(self):
+        # Test the string representation of a confirmed booking
+        expected_str = f"Booking: {self.student.full_name} with {self.tutor.full_name} on 2024-11-18 at 14:30:00, learning {self.booking_request.subject}."
+        self.assertEqual(str(self.confirmed_booking), expected_str)

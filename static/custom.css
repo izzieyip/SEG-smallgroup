@@ -113,3 +113,14 @@ h3.profile-title {
   text-decoration: underline;
   color: #0d6efd;
 }
+
+/*
+* Overlap button for display_requests
+*/
+
+.overlap-button {
+  position: absolute;
+  top: 10px;  /* Adjust top position */
+  right: 100px; /* Adjust right position */
+  z-index: 10; /* Ensures it appears above other elements */
+}

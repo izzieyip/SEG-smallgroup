@@ -1,0 +1,33 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+      <h1>Outstanding invoices.</h1>
+    </div>
+  </div>
+  <table class="table table-striped">
+    <tr>
+      <th>Student</th>
+      <th>Amount</th>
+      <th>Manage</th>
+    </tr>
+
+    {% for invoice in invoiceData%}
+    <!--Display each entry of Invoices in table format-->
+    <tr>
+      <!-- Base Data (TBD) -->
+      <td></td>
+      <td></td>
+
+      <!-- Manage Button -->
+      <td>
+        <a href="TBC" class="btn btn-warning">Mark as Paid.</a> /
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %}
