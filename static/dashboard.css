@@ -1,8 +1,20 @@
+
+
 .custom-header {
-  background-color: #d4edda; /* Light green background */
-  padding: 15px 20px; /* Padding to make the header look nice */
-  border: none; /* No border */
-  border-radius: 5px; /* rounded corners */
-  color: #155724; /* Dark green text color */
-  font-size: 2rem; /* Adjust font size as needed */
+    color: #155724; /* Dark green text color */
+    font-size: 2rem; /* Adjust font size as needed */
+    font-weight: 500; /* Makes the text slightly bold */
 }
+
+.custom-text {
+    color: #155724; /* Dark green text color */
+    font-size: 1.3rem; /* Adjust font size as needed */
+}
+
+.dashboard-container {
+    margin-top: 40px;
+    margin-bottom: 50px;
+    background-color: #d4edda; /* Light green background */
+    border: none; /* No border */
+    border-radius: 5px; /* rounded corners */
+    padding: 30px; /* Adds space between the edges and the text in the container*/
