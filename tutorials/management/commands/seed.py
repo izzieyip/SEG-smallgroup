@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from tutorials.models import User, Student, Tutor
+from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking
 
 import pytz
 from faker import Faker
@@ -34,21 +34,43 @@ class Command(BaseCommand):
     (4, '4'),
     (5, '5')
     ]
+
+    days = [
+    ("SUN", 'Sunday'),
+    ("MON", 'Monday'),
+    ("TUE", 'Tuesday'),
+    ("WED", 'Wednesday'),
+    ("THU", 'Thursday'),
+    ("FRI", 'Friday'),
+    ("SAT", 'Saturday')
+    ]
+
+    times = [
+    (1, "Morning"),
+    (2, "Afternoon"),
+    (3, "Evening"),
+    (4, "Morning and Afternoon"),
+    (5, "Afternoon and Evening"),
+    (6, "Morning and Evening"),
+    (7, "Whole day")
+    ]
     
+
 
 
     def __init__(self):
         self.faker = Faker('en_GB')
 
     def handle(self, *args, **options):
-        self.create_users()
+        self.create_fakedata()
         self.users = User.objects.all()
         self.students = Student.objects.all()
         self.tutors = Tutor.objects.all()
 
-    def create_users(self):
-        self.generate_user_fixtures()
+    def create_fakedata(self):
+        #self.generate_user_fixtures()
         self.generate_random_users()
+        self.generate_bookingrequests()
 
     def generate_user_fixtures(self):
         for data in user_fixtures:
@@ -102,13 +124,9 @@ class Command(BaseCommand):
         last_name = self.faker.last_name()
         email = create_email(first_name, last_name)
         username = create_username(first_name, last_name)
-        #student attributes
-        num1 = random.randint(0,3)
-        skill = self.skills[num1][0]
-        num2 = random.randint(0,4)
-        level = self.difficulty_levels[num2][0]
+        #no other student attributes
 
-        self.try_create_student({'username': username, 'email': email, 'first_name': first_name, 'last_name': last_name, 'skill_to_learn': skill, 'difficulty_level': level})
+        self.try_create_student({'username': username, 'email': email, 'first_name': first_name, 'last_name': last_name})
        
     def try_create_student(self, data):
         try:
@@ -123,9 +141,7 @@ class Command(BaseCommand):
             email=data['email'],
             password=Command.DEFAULT_PASSWORD,
             first_name=data['first_name'],
-            last_name=data['last_name'],
-            skill_to_learn=data['skill_to_learn'],
-            difficulty_level=data['difficulty_level'],
+            last_name=data['last_name']
         )
 
     
@@ -136,12 +152,13 @@ class Command(BaseCommand):
         email = create_email(first_name, last_name)
         username = create_username(first_name, last_name)
         #tutor attributes
-        num1 = random.randint(0,3)
-        skill = self.skills[num1][0]
-        num2 = random.randint(0,4)
-        level = self.difficulty_levels[num2][0]
+        skill = self.skills[random.randint(0,3)][0]
+        level = self.difficulty_levels[random.randint(0,4)][0]
+        day = self.days[random.randint(0,6)][0]
+        time = self.times[random.randint(0,6)][0]
 
-        self.try_create_tutor({'username': username, 'email': email, 'first_name': first_name, 'last_name': last_name, 'skills': skill, 'experience_level': level})
+
+        self.try_create_tutor({'username': username, 'email': email, 'first_name': first_name, 'last_name': last_name, 'skills': skill, 'experience_level': level, 'available_days': day, 'available_times': time})
        
     def try_create_tutor(self, data):
         try:
@@ -158,7 +175,81 @@ class Command(BaseCommand):
             last_name=data['last_name'],
             skills=data['skills'],
             experience_level=data['experience_level'],
+            available_days=data['available_days'],
+            available_times=data['available_times']
         )
+
+
+####################################################################################################
+####################################################################################################
+############   SEEDING FOR BOOKINGS AND BOOKING REQUESTS ##########################################
+#####################################################################################################
+####################################################################################################
+
+    def generate_bookingrequests(self):
+        requestcount = Booking_requests.objects.count()
+        while requestcount < self.USER_COUNT:
+            print(f"Seeding student {requestcount}/{self.USER_COUNT}", end='\r')
+            self.generate_requests()
+            requestcount = Booking_requests.objects.count()
+
+        #generate confirmed bookings
+        bookingcount = Confirmed_booking.objects.count()
+        while bookingcount < 100:
+            print(f"Seeding tutor {bookingcount}/100", end='\r')
+            self.generate_bookings()
+            bookingcount = Confirmed_booking.objects.count()
+
+        print("Booking seeding complete.      ")
+
+
+    #BOOKING REQUESTS
+    def generate_requests(self):
+        student = random.choice(Student.objects.all())
+        subject = self.skills[random.randint(0,3)][0]
+        level = self.difficulty_levels[random.randint(0,4)][0]
+
+        self.try_create_bookingrequests({'student': student, 'subject': subject, 'difficulty': level})
+       
+    def try_create_bookingrequests(self, data):
+        try:
+            self.create_bookingrequests(data)
+        except:
+            print("failed")
+            pass
+
+    def create_bookingrequests(self, data):
+        Booking_requests.objects.create(
+            student=data['student'],
+            subject=data['subject'],
+            difficulty=data['difficulty'],
+            isConfirmed=False
+        )
+
+    #CONFIRMED BOOKINGS
+    def generate_bookings(self):
+        booking=random.choice(Booking_requests.objects.filter(isConfirmed=False))
+        tutor=random.choice(Tutor.objects.all())
+        date=self.faker.date_this_year()
+        time=self.faker.time('%H:%M')
+        self.try_create_booking({'booking': booking, 'tutor': tutor, 'booking_date': date, 'booking_time': time})
+
+    def try_create_booking(self, data):
+        try:
+            self.create_booking(data)
+        except:
+            print("failed")
+            pass
+
+    def create_booking(self, data):
+        Confirmed_booking.objects.create(
+            booking=data['booking'],
+            tutor=data['tutor'],
+            booking_date=data['booking_date'],
+            booking_time=data['booking_time']
+        )
+
+    
 
 
 def create_username(first_name, last_name):

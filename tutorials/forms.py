@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User
+from .models import User, Confirmed_booking
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -108,3 +108,24 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
             password=self.cleaned_data.get('new_password'),
         )
         return user
+    
+skills = [
+    ("CPP", "C++"),
+    ("JA", "JAVA"),
+    ("PY", "PYTHON"),
+    ("DJ", "DJANGO")
+]
+
+#we're going to search for a BookingRequest object by student username and subject
+class BookingForm(forms.ModelFormForm):
+    #form to create a insert a new booking into the table
+    student = forms.CharField(label="Student username", max_length=255)
+    subject = forms.ChoiceField(choices=skills)
+    date = forms.DateField(label="Date")
+    time = forms.TimeField(label = "Time")
+    tutor = forms.CharField(label="Tutor username", max_length=255)
+
+
+
+
+
