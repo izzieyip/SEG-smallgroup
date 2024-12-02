@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import redirect, render
 from django.views import View
+from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm
@@ -14,6 +15,9 @@ from tutorials.helpers import login_prohibited
 from tutorials.models import Booking_requests, Confirmed_booking
 from django.db.models import Q
 from tutorials.models import Confirmed_booking, Student, Tutor
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
+from tutorials.helpers import login_prohibited
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
 from django.http import HttpResponse, HttpResponseRedirect
 
 
@@ -166,17 +170,35 @@ class SignUpView(LoginProhibitedMixin, FormView):
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
     
-#class ViewBookingsView(LoginRequiredMixin, View):
-    """Display all bookings in table format."""
 
-    #model = tbc
-    #template_name = "view_bookings.html"
+class ViewBookingsView(LoginRequiredMixin, ListView):
+    """Display the confirmed bookings as a table."""
+    
+    model = Confirmed_booking
+    template_name = 'view_bookings.html'
+    context_object_name = 'bookingData'
 
-def ViewBookingsView(request):
-    booking_data = Booking_requests.objects.all()
-    context = {'tableInfo':booking_data}
-    return render(request, 'view_bookings.html', context)
+    def delete_booking(request, id):
+        # used with delete button in manage table
+        obj = Confirmed_booking.objects.get(id=id)
+        obj.booking.delete() #delete Booking_requests object too
+        obj.delete()
+        return redirect('view_bookings')
 
+
+#UPDATE BELOW TO A CLASS
+#needs import model and the data when merged 
+"""
+@login_required
+def ViewInvoices(request): 
+    ''' UNCOMMENT BELOW WHEN ADMIN USERS ARE IMPLEMENTED
+    #Block permission if the user is not an Admin
+    if not request.user.is_superuser == True:
+        return render(request, 'permission_denied.html') '''
+
+    invoice_data = Invoice.objects.get( ) #Fetch all invoices that are outstanding
+    context = {'invoiceData':invoice_data}
+    return render(request, 'invoices.html', context) """
 
 #task 5 booking searching
 #this function is to be assinged to the search button and takes the input of the search bar
@@ -204,6 +226,35 @@ def search_confirmed_requests(query):
     )
     return bookings
 
+#"MyForm" palceholder for the create a confirmed booking form
+def create_multiple_objects(request):
+    if request.method == 'POST':
+        form = MyForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            #can add to the form if we want them to have ana option fo how many bookings they want
+            #number_of_objects = int(request.POST.get('number_of_objects', 1))  # Get the number from the request
+            objects = []
+            #number of bookings can be changed set to 10 for a term
+            for i in range(10):
+                obj = Confirmed_booking(tutor=data['tutorid'],booking_date=[i*7+startingdate])#fill according to form make it work
+                objects.append(obj)
+            Confirmed_booking.objects.bulk_create(objects)
+            return redirect('view_bookings.url')#repalce with correct url if wrong?
+    else:
+        form = MyForm()
+    #replace splitscreen.html with actual name
+    return render(request, 'splitscreen.html', {'form': form})
+
+
+# displaying the form to create a new booking request
+def CreatingBookingRequest(request):
+    
+    model = Booking_requests
+    form_class = CreateBookingRequest()
+    template_name = "create_booking_requests.html"
+    return render(request, template_name,  context = {'form':form_class})
+
 
 def createBooking(request):
     if request.method == "POST":
@@ -216,13 +267,14 @@ def createBooking(request):
             tutoruser = form.cleaned_data['tutor']
             #search for bookingrequest object, search for tutor object
             try:
+                ()
                 student = Student.objects.get(username=studentuser)
                 tutor = Tutor.objects.get(username=tutoruser)
-                #bookingrequest = Pending_booking.objects.get(student=student, subject=subject)
-                #booking = Confirmed_booking(booking=bookingrequest, tutor=tutor)
-                #booking.save()
+                bookingrequest = Booking_requests.objects.get(student=student, subject=subject)
+                booking = Confirmed_booking(booking=bookingrequest, tutor=tutor, booking_date=date, booking_time=time)
+                booking.save()
             except:
-                form.add_error(None, "Student or Tutor find is not possible")
+                form.add_error(None, "This request is not possible")
             else:
                 path = reverse('dashboard')
                 return HttpResponseRedirect(path)
@@ -231,22 +283,16 @@ def createBooking(request):
     return render(request, 'create_booking.html', {'form': form})
 
 
-def updateBooking(request): #bookingid?
+def updateBooking(request, bookingid):
 
-    #booking = Confirmed_booking.objects.get(id=bookingid)
+    booking = Confirmed_booking.objects.get(id=bookingid)
 
     if request.method == "POST":
-        form = BookingForm(request.POST) #instance=booking
+        form = BookingForm(request.POST, instance=booking) 
         if form.is_valid():
-            #studentuser = form.cleaned_data['student'] <- shouldnt be able to change anythign except date/time
-            #subject = form.cleaned_data['subject']
-            date = form.cleaned_data['date']
-            time = form.cleaned_data['time']
-            #tutoruser = form.cleaned_data['tutor']
-            #search for bookingrequest object, search for tutor object
             try:
                 ()
-                #booking.save()
+                booking.save()
             except:
                 form.add_error(None, "Changes NOT saved - error occured.")
             else:
@@ -254,7 +300,7 @@ def updateBooking(request): #bookingid?
                 return HttpResponseRedirect(path)
             
     else:
-        form = BookingForm() #instance=booking
+        form = BookingForm(instance=booking)
     return render(request, 'update_booking.html', {'form': form})
 
 def display_all_booking_requests(request):
