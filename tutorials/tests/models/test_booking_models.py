@@ -1,4 +1,3 @@
-
 from django.test import TestCase
 from tutorials.models import Booking_requests, Confirmed_booking, Student, Tutor
 from datetime import date, time
@@ -174,4 +173,3 @@ class ConfirmedBookingTestCase(TestCase):
         # Test the string representation of a confirmed booking
         expected_str = f"Booking: {self.student.full_name} with {self.tutor.full_name} on 2024-11-18 at 14:30:00, learning {self.booking_request.subject}."
         self.assertEqual(str(self.confirmed_booking), expected_str)
-
