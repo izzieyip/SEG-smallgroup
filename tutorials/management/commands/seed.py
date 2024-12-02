@@ -76,7 +76,7 @@ class Command(BaseCommand):
         self.generate_random_users()
         self.generate_bookingrequests()
 
-     def generate_user_fixtures(self):
+    def generate_user_fixtures(self):
         for data in user_fixtures:
             self.try_create_user(data)
        
