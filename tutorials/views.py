@@ -9,7 +9,7 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
 from django.http import HttpResponse, HttpResponseRedirect
@@ -166,7 +166,6 @@ def ViewBookingsView(request):
     context = {'tableInfo':booking_data}
     return render(request, 'view_bookings.html', context)
 
-
 #task 5 booking searching
 #this function is to be assinged to the search button and takes the input of the search bar
 #depending on what results are needed, call the respective booking function
@@ -192,6 +191,16 @@ def search_confirmed_requests(query):
         Q(booking_date__icontains=query)
     )
     return bookings
+
+
+
+# displaying the form to create a new booking request
+def CreatingBookingRequest(request):
+    
+    model = Booking_requests
+    form_class = CreateBookingRequest()
+    template_name = "create_booking_requests.html"
+    return render(request, template_name,  context = {'form':form_class})
 
 
 def createBooking(request):
@@ -240,3 +249,4 @@ def updateBooking(request, bookingid):
     else:
         form = BookingForm(instance=booking)
     return render(request, 'update_booking.html', {'form': form})
+

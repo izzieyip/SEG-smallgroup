@@ -2,7 +2,8 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Confirmed_booking
+from .models import Booking_requests, User, Student, Confirmed_booking
+
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -109,6 +110,24 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
         )
         return user
     
+
+class CreateBookingRequest(forms.ModelForm):
+    """Form for admin to create new booking requests for a particular student based
+    on their username"""
+
+    class Meta:
+
+        model = Booking_requests
+        fields = ['student','subject', 'difficulty']
+
+
+    def save(self):
+        """Create a new booking request"""
+
+        super().save()
+        student1 = Student.objects.get(username = self.cleaned_data.get('username'))
+        booking = Booking_requests.objects.create(student = student1, subject = self.cleaned_data.get("subject"), difficulty = self.cleaned_data.get("difficulty"))
+        return booking
 skills = [
     ("CPP", "C++"),
     ("JA", "JAVA"),
@@ -124,8 +143,4 @@ class BookingForm(forms.ModelFormForm):
     date = forms.DateField(label="Date")
     time = forms.TimeField(label = "Time")
     tutor = forms.CharField(label="Tutor username", max_length=255)
-
-
-
-
 

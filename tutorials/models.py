@@ -45,9 +45,9 @@ class User(AbstractUser):
     
 Skills = [
     ("CPP", "C++"),
-    ("JA", "JAVA"),
-    ("PY", "PYTHON"),
-    ("DJ", "DJANGO")
+    ("JA", "Java"),
+    ("PY", "Python"),
+    ("DJ", "Django")
 ]
 
 days = [
@@ -71,25 +71,26 @@ times = [
 ]
 
 difficulty_levels = [
-    (1, '1'),
-    (2, '2'),
-    (3, '3'),
-    (4, '4'),
-    (5, '5')
+    (1, "1"),
+    (2, "2"),
+    (3, "3"),
+    (4, "4"),
+    (5, "5")
 ]
 
 class Student(User):
     def __str__(self) -> str:
-        return super().__str__() + f'wants to learn {self.skill_to_learn} at difficulty level {self.difficulty_level}'
+        return super().__str__() 
 
 class Tutor(User):
-    skills = models.CharField(choices = Skills, max_length= 3)
+    skills = models.CharField(choices = Skills, max_length= 3, default=None)
     experience_level = models.IntegerField(choices= difficulty_levels, default=None)
     available_days = models.CharField(choices=days, max_length=3,default="MON")
     available_times = models.IntegerField(choices=times,default=1)
 
     def __str__(self) -> str:
-        return super().__str__() + f'knows {self.skills} with an experience level of {self.experience_level}'
+        return super().__str__() + f' knows {dict(Skills)[self.skills]} with an experience level of {dict(difficulty_levels)[self.experience_level]} and is available on {dict(days)[self.available_days]} {dict(times)[self.available_times]}'
+
 
 
 #Pending Bookings class (no tutor assigned)
@@ -104,7 +105,7 @@ class Booking_requests(models.Model):
     isConfirmed = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Booking Pending for: {self.student} on {self.booking_date} at {self.booking_time}, wants to learn {self.subject}."
+        return f"Booking Pending for: {self.student} to learn {self.subject} at difficulty level {self.difficulty}"
 
     #ensures each one is unique
     class Meta:
