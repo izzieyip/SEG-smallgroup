@@ -72,9 +72,28 @@ class Command(BaseCommand):
 
 
     def create_fakedata(self):
-        #self.generate_user_fixtures()
+        self.generate_user_fixtures()
         self.generate_random_users()
         self.generate_bookingrequests()
+
+     def generate_user_fixtures(self):
+        for data in user_fixtures:
+            self.try_create_user(data)
+       
+    def try_create_user(self, data):
+        try:
+            self.create_user(data)
+        except:
+            pass
+
+    def create_user(self, data):
+        User.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            password=Command.DEFAULT_PASSWORD,
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+        )
 
     def generate_random_users(self):
         student_count = Student.objects.count()
