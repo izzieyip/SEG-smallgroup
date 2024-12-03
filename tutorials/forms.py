@@ -90,7 +90,7 @@ class PasswordForm(NewPasswordMixin):
         return self.user
 
 
-class SignUpForm(forms.ModelForm):
+class SignUpForm(NewPasswordMixin, forms.ModelForm):
     """Form enabling unregistered users to sign up."""
     userType = forms.ChoiceField(choices=[('S', 'Student'), ('T', 'Tutor')], required=True, label="Type of User")
 
@@ -119,27 +119,28 @@ class SignUpForm(forms.ModelForm):
     def save(self, commit=True):
         """Create a new user of the selected type."""
         userType = self.cleaned_data['userType']
-        user = User.objects.create_user(
-            self.cleaned_data['username'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            email=self.cleaned_data['email'],
-            password=self.cleaned_data.get('new_password'),
-        )
         if userType == 'T':
             tutor = Tutor.objects.create(
-                user=user,
+                username= self.cleaned_data.get('username'),
+                first_name=self.cleaned_data.get('first_name'),
+                last_name=self.cleaned_data.get("last_name"),
+                email=self.cleaned_data.get('email'),
+                password=self.cleaned_data.get('new_password'),
                 skills=self.cleaned_data.get('skills'),
                 experience_level=self.cleaned_data.get('experience_level'),
                 available_days=self.cleaned_data.get('available_days'),
-                available_times=self.cleaned_data.get('available_times'),
+                available_times=self.cleaned_data.get('available_times')
             )
             return tutor
         elif userType == 'S':
-            student = Student.objects.create(user=user)
+            student = Student.objects.create(
+                username = self.cleaned_data.get('username'),
+                first_name=self.cleaned_data.get('first_name'),
+                last_name=self.cleaned_data.get("last_name"),
+                email=self.cleaned_data.get('email'),
+                password=self.cleaned_data.get('new_password'))
             return student
 
-        return user
     
 
 class CreateBookingRequest(forms.ModelForm):
