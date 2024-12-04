@@ -1,3 +1,4 @@
+
 from django.test import TestCase
 from tutorials.models import Booking_requests, Confirmed_booking, Student, Tutor
 from datetime import date, time
@@ -5,27 +6,29 @@ from datetime import date, time
 class BookingRequestsTestCase(TestCase):
     def setUp(self):
         # Create a sample student
-        self.student = Student.objects.create(full_name="John Doe", email="johndoe@example.com")
+        self.student = Student.objects.create(first_name="John", last_name="Doe", username="@johndoe", email="johndoe@example.com")
 
         # Create booking requests
         self.booking1 = Booking_requests.objects.create(
             student=self.student,
             subject="MAT",  # Assuming "MAT" is a valid choice in Skills
-            confirmed=False
+            isConfirmed=False,
+            difficulty=1,
         )
 
         self.booking2 = Booking_requests.objects.create(
             student=self.student,
             subject="SCI",  # Another valid choice in Skills
-            confirmed=True
+            confirmed=True,
+            difficulty=2,
         )
 
     def test_booking_creation(self):
         # Test that booking requests are created correctly
         self.assertEqual(Booking_requests.objects.count(), 2)
-        self.assertEqual(self.booking1.student.full_name, "John Doe")
+        self.assertEqual(self.booking1.student.first_name, "John")
         self.assertEqual(self.booking1.subject, "CPP")
-        self.assertFalse(self.booking1.confirmed)
+        self.assertFalse(self.booking1.isConfirmed)
 
     def test_unique_together_constraint(self):
         # Test that duplicate (student, subject) combinations are not allowed
@@ -45,8 +48,8 @@ class BookingRequestsTestCase(TestCase):
 class ConfirmedBookingTestCase(TestCase):
     def setUp(self):
         # Create a sample student and tutor
-        self.student = Student.objects.create(full_name="John Doe", email="johndoe@example.com")
-        self.tutor = Tutor.objects.create(full_name="Jane Smith", email="janesmith@example.com")
+        self.student = Student.objects.create(first_name="John", last_name="Doe", username="@johndoe", email="johndoe@example.com")
+        self.tutor = Tutor.objects.create(first_name="Jane", last_name="Smith", username="@janesmith", email="janesmith@example.com", experience_level=1, skills="CPP")
 
         # Create a pending booking request
         self.booking_request = Booking_requests.objects.create(
@@ -67,7 +70,7 @@ class ConfirmedBookingTestCase(TestCase):
         # Test that the confirmed booking is created correctly
         self.assertEqual(Confirmed_booking.objects.count(), 1)
         self.assertEqual(self.confirmed_booking.booking, self.booking_request)
-        self.assertEqual(self.confirmed_booking.tutor.full_name, "Jane Smith")
+        self.assertEqual(self.confirmed_booking.tutor.first_name, "Jane")
         self.assertEqual(self.confirmed_booking.booking_date, date(2024, 11, 18))
         self.assertEqual(self.confirmed_booking.booking_time, time(14, 30))
 

@@ -141,12 +141,12 @@ class Confirmed_booking(models.Model):
 
 class Invoices(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="invoices")
-    year = models.DateField(default=datetime.date.today)
+    year = models.IntegerField(default=datetime.date.today().year)
     amount = models.IntegerField(default=0)
     paid = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.student} has an invoice of amount: {self.amount}. Invoice created on : {self.date}"
+        return f"{self.student.first_name} has an invoice of amount: {self.amount}. Invoice created in : {self.year}"
 
     #ensures each one is unique
     class Meta:
