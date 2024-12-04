@@ -32,6 +32,8 @@ urlpatterns = [
     path('sign_up/', views.SignUpView.as_view(), name='sign_up'),
     path('view_bookings/', views.ViewBookingsView.as_view(), name='view_bookings'),
     path('delete-booking/<int:id>/', views.ViewBookingsView.delete_booking, name='delete_booking'),
+    path('create_booking/', views.createBooking, name='create_booking'),
+    path('update_booking/', views.updateBooking, name='update_booking'),
     #path('invoices/', views.ViewInvoices, name='invoices') (wip),
 ]
 

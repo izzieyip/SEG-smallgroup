@@ -252,7 +252,6 @@ def createBooking(request):
 
 
 def updateBooking(request, bookingid):
-
     booking = Confirmed_booking.objects.get(id=bookingid)
 
     if request.method == "POST":

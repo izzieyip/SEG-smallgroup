@@ -136,8 +136,10 @@ skills = [
 ]
 
 #we're going to search for a BookingRequest object by student username and subject
-class BookingForm(forms.ModelFormForm):
+class BookingForm(forms.Form):
     #form to create a insert a new booking into the table
+    # model = Booking_requests
+    # fields = ['student','subject', 'date', 'time', 'tutor']
     student = forms.CharField(label="Student username", max_length=255)
     subject = forms.ChoiceField(choices=skills)
     date = forms.DateField(label="Date")
