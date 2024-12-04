@@ -71,6 +71,7 @@ class Command(BaseCommand):
         #self.generate_user_fixtures()
         self.generate_random_users()
         self.generate_bookingrequests()
+        self.generate_bookings()
 
     def generate_user_fixtures(self):
         for data in user_fixtures:
