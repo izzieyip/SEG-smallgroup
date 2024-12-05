@@ -10,6 +10,7 @@ from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
+from django.urls import reverse_lazy
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm,\
     CreateNewAdminForm
 from tutorials.helpers import login_prohibited
@@ -176,6 +177,9 @@ class CreateNewAdminView(LoginRequiredMixin, FormView):
 
     form_class = CreateNewAdminForm
     template_name = "create_new_admin.html"
+    # Redirects to a reset version of the same page after creating a new admin
+    success_url = reverse_lazy('create_new_admin')
+    success_message = "Yes, a new admin has been made!"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
