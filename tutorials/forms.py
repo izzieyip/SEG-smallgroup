@@ -142,7 +142,7 @@ class SignUpForm(forms.ModelForm):
         return user
 
 
-class CreateNewAdminForm(forms.ModelForm):
+class CreateNewAdminForm(forms.ModelForm, NewPasswordMixin):
     """Form enabling admins to create NEW admins once logged in"""
     class Meta:
         model = Admin
@@ -156,14 +156,13 @@ class CreateNewAdminForm(forms.ModelForm):
 
     def save(self, commit=True):
         """Create a new admin user with this data."""
-        user = User.objects.create_user(
-            self.cleaned_data['username'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            email=self.cleaned_data['email'],
+        admin = Admin.objects.create_user(
+            username = self.cleaned_data.get('username'),
+            first_name=self.cleaned_data.get('first_name'),
+            last_name=self.cleaned_data.get('last_name'),
+            email=self.cleaned_data.get('email'),
             password=self.cleaned_data.get('new_password'),
         )
-        admin = Admin.objects.create(user=user)
         return admin
 
 
