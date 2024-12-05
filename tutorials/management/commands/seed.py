@@ -169,6 +169,33 @@ class Command(BaseCommand):
             available_times=data['available_times']
         )
 
+    # Admin User
+    def generate_admin(self):
+        first_name = self.faker.first_name()
+        last_name = self.faker.last_name()
+        email = create_email(first_name, last_name)
+        username = create_username(first_name, last_name)
+        # all admin attributes same as other users
+
+        self.try_create_admin(
+            {'username': username, 'email': email, 'first_name': first_name, 'last_name': last_name})
+
+    def try_create_admin(self, data):
+        try:
+            self.create_admin(data)
+        except Exception as e:
+            print(f"Failed to create admin: {e}")
+
+    def create_admin(self, data):
+        Student.objects.create_user(
+            username=data['username'],
+            email=data['email'],
+            password=self.DEFAULT_PASSWORD,
+            first_name=data['first_name'],
+            last_name=data['last_name']
+        )
+
+
 
 ####################################################################################################
 ####################################################################################################

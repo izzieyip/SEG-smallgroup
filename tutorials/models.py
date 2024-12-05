@@ -92,6 +92,9 @@ class Tutor(User):
         return super().__str__() + f' knows {dict(Skills)[self.skills]} with an experience level of {dict(difficulty_levels)[self.experience_level]} and is available on {dict(days)[self.available_days]} {dict(times)[self.available_times]}'
 
 
+class Admin(User):
+    def __str__(self) -> str:
+        return super().__str__()
 
 #Pending Bookings class (no tutor assigned)
 #Refers to objects of the student class

@@ -4,7 +4,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Confirmed_booking, Student, Tutor
+from .models import User, Confirmed_booking, Student, Tutor, Admin
 from .models import Booking_requests, User, Student, Confirmed_booking
 
 class LogInForm(forms.Form):
@@ -140,7 +140,32 @@ class SignUpForm(forms.ModelForm):
             return student
 
         return user
-    
+
+
+class CreateNewAdminForm(forms.ModelForm):
+    """Form enabling admins to create NEW admins once logged in"""
+    class Meta:
+        model = Admin
+        fields = ['first_name', 'last_name', 'username', 'email']
+
+    def __init__(self, *args, **kwargs):
+        # Retrieve the data passed to the form
+        data = kwargs.get('data', {})
+        super().__init__(*args, **kwargs)
+
+
+    def save(self, commit=True):
+        """Create a new admin user with this data."""
+        user = User.objects.create_user(
+            self.cleaned_data['username'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            email=self.cleaned_data['email'],
+            password=self.cleaned_data.get('new_password'),
+        )
+        admin = Admin.objects.create(user=user)
+        return admin
+
 
 class CreateBookingRequest(forms.ModelForm):
     """Form for admin to create new booking requests for a particular student based
