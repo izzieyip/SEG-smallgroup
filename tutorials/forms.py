@@ -118,28 +118,29 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 
     def save(self, commit=True):
         """Create a new user of the selected type."""
-        userType = self.cleaned_data['userType']
-        if userType == 'T':
-            tutor = Tutor.objects.create(
-                username= self.cleaned_data.get('username'),
-                first_name=self.cleaned_data.get('first_name'),
-                last_name=self.cleaned_data.get("last_name"),
-                email=self.cleaned_data.get('email'),
-                password=self.cleaned_data.get('new_password'),
-                skills=self.cleaned_data.get('skills'),
-                experience_level=self.cleaned_data.get('experience_level'),
-                available_days=self.cleaned_data.get('available_days'),
-                available_times=self.cleaned_data.get('available_times')
-            )
-            return tutor
-        elif userType == 'S':
-            student = Student.objects.create(
-                username = self.cleaned_data.get('username'),
-                first_name=self.cleaned_data.get('first_name'),
-                last_name=self.cleaned_data.get("last_name"),
-                email=self.cleaned_data.get('email'),
-                password=self.cleaned_data.get('new_password'))
-            return student
+        if self.is_valid():
+            userType = self.cleaned_data.get('userType')
+            if userType == 'T':
+                tutor = Tutor.objects.create_user(
+                    username= self.cleaned_data.get('username'),
+                    first_name=self.cleaned_data.get('first_name'),
+                    last_name=self.cleaned_data.get("last_name"),
+                    email=self.cleaned_data.get('email'),
+                    password=self.cleaned_data.get('new_password'),
+                    skills=self.cleaned_data.get('skills'),
+                    experience_level=self.cleaned_data.get('experience_level'),
+                    available_days=self.cleaned_data.get('available_days'),
+                    available_times=self.cleaned_data.get('available_times')
+                )
+                return tutor
+            elif userType == 'S':
+                student = Student.objects.create_user(
+                    username = self.cleaned_data.get('username'),
+                    first_name=self.cleaned_data.get('first_name'),
+                    last_name=self.cleaned_data.get("last_name"),
+                    email=self.cleaned_data.get('email'),
+                    password=self.cleaned_data.get('new_password'))
+                return student
 
     
 
