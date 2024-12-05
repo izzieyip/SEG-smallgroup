@@ -6,7 +6,7 @@ from tutorials.forms import CreateNewAdminForm
 ## first we test that the form contains the correct fields
 
 class CreateNewAdminFormTestCase(TestCase):
-    def test_from_has_necessary_fields(self):
+    def test_form_has_necessary_fields(self):
         form = CreateNewAdminForm()
         self.assertIn('username', form.fields)
         self.assertIn('firstname', form.fields)
