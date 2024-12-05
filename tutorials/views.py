@@ -10,7 +10,9 @@ from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm
+from django.urls import reverse_lazy
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm,\
+    CreateNewAdminForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Booking_requests, Confirmed_booking
 from django.db.models import Q
@@ -170,6 +172,25 @@ class SignUpView(LoginProhibitedMixin, FormView):
     def get_success_url(self):
         return reverse(settings.REDIRECT_URL_WHEN_LOGGED_IN)
     
+
+class CreateNewAdminView(LoginRequiredMixin, FormView):
+
+    form_class = CreateNewAdminForm
+    template_name = "create_new_admin.html"
+    # Redirects to a reset version of the same page after creating a new admin
+    success_url = reverse_lazy('create_new_admin')
+    success_message = "Yes, a new admin has been made!"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.request.method == 'POST':
+            kwargs['data'] = self.request.POST
+        return kwargs
+
+    def form_valid(self, form):
+        admin_user = form.save(commit=False)
+        admin_user.save()
+        return super().form_valid(form)
 
 class ViewBookingsView(LoginRequiredMixin, ListView):
     """Display the confirmed bookings as a table."""
