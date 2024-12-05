@@ -1,5 +1,4 @@
 
-
 """Forms for the tutorials app."""
 from django import forms
 from django.contrib.auth import authenticate
@@ -168,6 +167,7 @@ skills = [
 ]
 
 #we're going to search for a BookingRequest object by student username and subject
+
 class BookingForm(forms.Form):
     #form to create a insert a new booking into the table
     student = forms.CharField(label="Student username", max_length=255)

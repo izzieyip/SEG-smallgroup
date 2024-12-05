@@ -78,6 +78,7 @@ difficulty_levels = [
     (5, "5")
 ]
 
+
 class Student(User):
     def __str__(self) -> str:
         return super().__str__() 
@@ -136,3 +137,17 @@ class Confirmed_booking(models.Model):
     #ensures each one is unique
     class Meta:
         unique_together = ('booking', 'tutor', 'booking_date', 'booking_time')
+
+
+class Invoices(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="invoices")
+    year = models.IntegerField(default=datetime.date.today().year)
+    amount = models.IntegerField(default=0)
+    paid = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.student.first_name} has an invoice of amount: {self.amount}. Invoice created in : {self.year}"
+
+    #ensures each one is unique
+    class Meta:
+        unique_together = ('student', 'amount', 'year')
