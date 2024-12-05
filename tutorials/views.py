@@ -248,9 +248,10 @@ def search_confirmed_requests(query):
     return bookings
 
 #"MyForm" palceholder for the create a confirmed booking form
+#i changed ^ to booking form - izzy
 def create_multiple_objects(request):
     if request.method == 'POST':
-        form = MyForm(request.POST)
+        form = BookingForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
             #can add to the form if we want them to have ana option fo how many bookings they want
@@ -258,12 +259,12 @@ def create_multiple_objects(request):
             objects = []
             #number of bookings can be changed set to 10 for a term
             for i in range(10):
-                obj = Confirmed_booking(tutor=data['tutorid'],booking_date=[i*7+startingdate])#fill according to form make it work
+                obj = Confirmed_booking(tutor=data['tutorid'],booking_date=[i*7+form.date])#fill according to form make it work
                 objects.append(obj)
             Confirmed_booking.objects.bulk_create(objects)
             return redirect('view_bookings.url')#repalce with correct url if wrong?
     else:
-        form = MyForm()
+        form = BookingForm()
     #replace splitscreen.html with actual name
     return render(request, 'splitscreen.html', {'form': form})
 
