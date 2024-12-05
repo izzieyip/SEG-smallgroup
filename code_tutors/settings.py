@@ -30,6 +30,7 @@ ALLOWED_HOSTS = ['127.0.0.1','localhost', 'teamhippo1.pythonanywhere.com']
 
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -119,7 +120,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+
+STATIC_URL = '/static/'
 STATIC_ROOT = 'assets/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
