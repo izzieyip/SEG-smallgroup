@@ -1,0 +1,56 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+      <h1>All Users</h1>
+    </div>
+  </div>
+  <table class="table table-striped">
+    <tr>
+      <th>Username</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Email</th>
+      <th>User Type</th>
+    </tr>
+
+    {% for each_admin in admin %}
+    <!--Display all admin-->
+    <tr>
+      <!-- Base Data -->
+      <td>{{each_admin.username}}</td>
+      <td>{{each_admin.first_name}}</td>
+      <td>{{each_admin.last_name}}</td>
+      <td>{{each_admin.email}}</td>
+      <td>Admin</td>
+    </tr>
+    {% endfor %}
+
+    {% for student in students %}
+    <!--Display all students-->
+    <tr>
+      <!-- Base Data -->
+      <td>{{student.username}}</td>
+      <td>{{student.first_name}}</td>
+      <td>{{student.last_name}}</td>
+      <td>{{student.email}}</td>
+      <td>Student</td>
+    </tr>
+    {% endfor %}
+
+    {% for tutor in tutors %}
+    <!--Display all tutors-->
+    <tr>
+      <!-- Base Data -->
+      <td>{{tutor.username}}</td>
+      <td>{{tutor.first_name}}</td>
+      <td>{{tutor.last_name}}</td>
+      <td>{{tutor.email}}</td>
+      <td>Tutor</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %}

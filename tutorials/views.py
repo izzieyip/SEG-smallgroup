@@ -19,7 +19,7 @@ from django.db.models import Q
 from tutorials.models import Confirmed_booking, Student, Tutor
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
-from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
 from django.http import HttpResponse, HttpResponseRedirect
 
 
@@ -325,7 +325,15 @@ def updateBooking(request, bookingid):
         form = BookingForm(instance=booking)
     return render(request, 'update_booking.html', {'form': form})
 
+# view function for the splitscreen with booking requests and tutors
 def display_all_booking_requests(request):
     data = Booking_requests.objects.all()
     data2 = Tutor.objects.all()
     return render(request, "view_requests.html", {"data": data, "data2": data2})
+
+# view function to display all users in one page
+def display_all_users(request):
+   admin = User.objects.values('username', 'first_name', 'last_name', 'email').exclude(student__isnull=False).exclude(tutor__isnull=False)
+   students = Student.objects.values('username', 'first_name', 'last_name', 'email')
+   tutors = Tutor.objects.values('username', 'first_name', 'last_name', 'email')
+   return render(request, "view_users.html", {"admin" : admin, 'students': students, 'tutors': tutors} )
