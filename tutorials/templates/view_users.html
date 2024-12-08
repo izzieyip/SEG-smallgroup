@@ -18,12 +18,38 @@
     {% for each_admin in admin %}
     <!--Display all admin-->
     <tr>
-      <!-- Base Data -->
-      <td>{{each_admin.username}}</td>
-      <td>{{each_admin.first_name}}</td>
-      <td>{{each_admin.last_name}}</td>
-      <td>{{each_admin.email}}</td>
-      <td>Admin</td>
+        <!-- Base Data -->
+        <td>{{each_admin.username}}</td>
+        <td>{{each_admin.first_name}}</td>
+        <td>{{each_admin.last_name}}</td>
+        <td>{{each_admin.email}}</td>
+        <td>Admin</td>
+        <!-- Manage Buttons -->
+        <td>
+          <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ each_admin.id }}">Delete</button>
+        </td>
+        <!-- Repeating Modal for delete button -->
+      <div class="modal fade" id="deleteConfirm{{ each_admin.id }}" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="deleteConfirmLabel">Delete User</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Are you sure you want to delete this user and all of their data?
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <!-- Form button to call delete booking urlpath -->
+              <form action="{% url 'delete_user' each_admin.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </tr>
     {% endfor %}
 
@@ -36,6 +62,32 @@
       <td>{{student.last_name}}</td>
       <td>{{student.email}}</td>
       <td>Student</td>
+      <!-- Manage Buttons -->
+      <td>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ student.id }}">Delete</button>
+      </td>
+      <!-- Repeating Modal for delete button -->
+    <div class="modal fade" id="deleteConfirm{{ student.id }}" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="deleteConfirmLabel">Delete User</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete this user and all of their data?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <!-- Form button to call delete booking urlpath -->
+            <form action="{% url 'delete_user' student.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
     </tr>
     {% endfor %}
 
@@ -48,6 +100,32 @@
       <td>{{tutor.last_name}}</td>
       <td>{{tutor.email}}</td>
       <td>Tutor</td>
+      <!-- Manage Buttons -->
+      <td>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ tutor.id }}">Delete</button>
+      </td>
+      <!-- Repeating Modal for delete button -->
+    <div class="modal fade" id="deleteConfirm{{ tutor.id }}" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="deleteConfirmLabel">Delete User</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete this user and all of their data?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <!-- Form button to call delete booking urlpath -->
+            <form action="{% url 'delete_user' tutor.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
     </tr>
     {% endfor %}
   </table>

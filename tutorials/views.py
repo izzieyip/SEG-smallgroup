@@ -333,7 +333,19 @@ def display_all_booking_requests(request):
 
 # view function to display all users in one page
 def display_all_users(request):
-   admin = User.objects.values('username', 'first_name', 'last_name', 'email').exclude(student__isnull=False).exclude(tutor__isnull=False)
-   students = Student.objects.values('username', 'first_name', 'last_name', 'email')
-   tutors = Tutor.objects.values('username', 'first_name', 'last_name', 'email')
-   return render(request, "view_users.html", {"admin" : admin, 'students': students, 'tutors': tutors} )
+   admin = User.objects.values('id','username', 'first_name', 'last_name', 'email').exclude(student__isnull=False).exclude(tutor__isnull=False)
+   students = Student.objects.values('id','username', 'first_name', 'last_name', 'email')
+   tutors = Tutor.objects.values('id','username', 'first_name', 'last_name', 'email')
+   return render(request, "view_users.html", {"admin" : admin, 'students': students, 'tutors': tutors})
+
+# view function to be able to delete a user
+def delete_user(request, id):
+    obj = User.objects.get(id=id)
+    obj.delete()
+    return redirect('view_users')
+
+# {% url 'delete_user' username=each_admin.username as url_to_delete_user %}
+#      {% include 'partials/confirm_delete_modal.html' with modal_heading='Delete User' modal_text='Are you sure you want to delete this user all of their data?' action=url_to_delete_user %}
+  
+
+
