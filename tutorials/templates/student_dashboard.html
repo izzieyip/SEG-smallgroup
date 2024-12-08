@@ -1,0 +1,51 @@
+<
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+  <div class="dashboard-container">
+        <p class="custom-header">
+          Welcome to your dashboard {{ user.username }}
+        </p>
+        <p class="custom-text">
+          Here you can check info on your tutor and see your next lessons!
+          -- Good luck studying :)
+        </p>
+  </div>
+
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-sm-4 mb-3 mb-sm-0">
+        <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">View my Lessons</h5>
+          <p class="card-text">Click here to view all my scheduled lessons</p>
+          <a href="{% url 'view_bookings' %}" class="btn btn-outline-primary w-100">View Lessons</a>
+        </div>
+      </div>
+      </div>
+
+      <div class="col-sm-4 mb-3 mb-sm-0">
+        <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Lesson Payments</h5>
+          <p class="card-text">Click here to see my lesson payments</p>
+          <a href="{% url 'view_requests' %}" class="btn btn-outline-secondary w-100">Lesson Payments</a>
+        </div>
+      </div>
+      </div>
+
+      <div class="col-sm-4">
+        <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">View my Tutor</h5>
+          <p class="card-text">Click here to see info on your assigned tutor</p>
+          <a href="#" class="btn btn-outline-success w-100">View my Tutor</a>
+
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+ %}
