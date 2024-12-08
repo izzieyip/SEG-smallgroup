@@ -10,22 +10,38 @@
   <table class="table table-striped">
     <tr>
       <th>Student</th>
+      <th>Year</th>
       <th>Amount</th>
       <th>Manage</th>
     </tr>
 
-    {% for invoice in invoiceData%}
     <!--Display each entry of Invoices in table format-->
     <tr>
-      <!-- Base Data (TBD) -->
-      <td></td>
-      <td></td>
-
-      <!-- Manage Button -->
+      <td>noah</td>
+      <td>2024</td>
+      <td>1000000</td>
       <td>
-        <a href="TBC" class="btn btn-warning">Mark as Paid.</a> /
+        <!-- Form button to call mark_as_paid urlpath -->
+          <button type="submit" class="btn btn-warning">Mark as Paid.</button>
       </td>
     </tr>
+
+    {% for invoice in invoiceData%}
+      {% if invoice.paid == False %} <!-- Only display outstanding invoices, meaning paid != True -->
+        <!--Display each entry of Invoices in table format-->
+        <tr>
+          <td>{{invoice.student.full_name}}</td>
+          <td>{{invoice.year}}</td>
+          <td>{{invoice.amount}}</td>
+          <td>
+            <!-- Form button to call mark_as_paid urlpath -->
+            <form action="{% url 'pay_invoice' invoice.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-warning">Mark as Paid.</button>
+            </form>
+          </td>
+        </tr>
+      {% endif %}
     {% endfor %}
   </table>
 </div>

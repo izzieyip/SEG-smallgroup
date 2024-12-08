@@ -14,12 +14,10 @@ from django.urls import reverse_lazy
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm,\
     CreateNewAdminForm
 from tutorials.helpers import login_prohibited
-from tutorials.models import Booking_requests, Confirmed_booking
-from django.db.models import Q
-from tutorials.models import Confirmed_booking, Student, Tutor
+from django.db.models import Q, F
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
-from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, Invoices
 from django.http import HttpResponse, HttpResponseRedirect
 
 
@@ -199,6 +197,22 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
     template_name = 'view_bookings.html'
     context_object_name = 'bookingData'
 
+    def get_queryset(self): #override to include sorting functionality
+        queryset = super().get_queryset() #unsorted query
+        sortby = self.request.GET.get('sortby', 'booking_date') #obtain filter through url (default to booking_date)
+
+        #maps table headers to the respective model data
+        keymap = {
+            'date' : 'booking_date',
+            'time' : 'booking_time',
+            'tutor' : 'tutor__first_name',
+            'student' : 'booking__student__first_name',
+            'subject' : 'booking__subject',
+            'difficulty' : 'booking__difficulty',
+        }
+
+        return queryset.order_by(keymap.get(sortby, 'booking_date'))
+
     def delete_booking(request, id):
         # used with delete button in manage table
         obj = Confirmed_booking.objects.get(id=id)
@@ -206,20 +220,19 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
         obj.delete()
         return redirect('view_bookings')
 
-
-#UPDATE BELOW TO A CLASS
-#needs import model and the data when merged 
-"""
-@login_required
-def ViewInvoices(request): 
-    ''' UNCOMMENT BELOW WHEN ADMIN USERS ARE IMPLEMENTED
-    #Block permission if the user is not an Admin
-    if not request.user.is_superuser == True:
-        return render(request, 'permission_denied.html') '''
-
-    invoice_data = Invoice.objects.get( ) #Fetch all invoices that are outstanding
-    context = {'invoiceData':invoice_data}
-    return render(request, 'invoices.html', context) """
+class ViewInvoicesView(LoginRequiredMixin, ListView):
+    """Display the confirmed bookings as a table."""
+    
+    model = Invoices
+    template_name = 'invoices.html'
+    context_object_name = 'invoiceData'
+    
+    def mark_as_paid(request, id):
+        # sets 'paid' to true for a specific entry
+        obj = Invoices.objects.get(id=id)
+        obj.paid == True
+        obj.save() # commit change to db
+        return redirect('invoices') #refresh
 
 #task 5 booking searching
 #this function is to be assinged to the search button and takes the input of the search bar

@@ -11,12 +11,12 @@
   </div>
   <table class="table table-striped">
     <tr>
-      <th>Date</th>
-      <th>Time</th>
-      <th>Tutor</th>
-      <th>Student</th>
-      <th>Subject</th>
-      <th>Difficulty</th>
+      <th><a href="?sortby=date">Date</a></th> <!-- Sort links -->
+      <th><a href="?sortby=time">Time</a></th>
+      <th><a href="?sortby=tutor">Tutor</a></th>
+      <th><a href="?sortby=student">Student</a></th>
+      <th><a href="?sortby=subject">Subject</a></th>
+      <th><a href="?sortby=difficulty">Difficulty</a></th>
       <th>Manage</th>
     </tr>
 
@@ -33,9 +33,10 @@
 
       <!-- Manage Buttons -->
       <td>
+        <a href="" class="btn btn-warning">Edit</a> /
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ confirmedBooking.id }}">Delete</button>
       </td>
-      <!-- use { url 'update_booking' id } with % for edit hyperlink-->
+      <!-- REPLACE HREF FOR EDIT WITH: { url 'update_booking' confirmedBooking.id} using %-->
 
       <!-- Repeating Modal for delete button -->
       <div class="modal fade" id="deleteConfirm{{ confirmedBooking.id }}" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
@@ -46,7 +47,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              Are you sure you want to cancel this booking and delete all of its data?
+              Are you sure you want to cancel this booking and delete all of its data? This cannot be undone.
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -59,7 +60,6 @@
           </div>
         </div>
       </div>
-
     </tr>
     {% endfor %}
   </table>
