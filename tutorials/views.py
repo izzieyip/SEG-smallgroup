@@ -313,7 +313,6 @@ def updateBooking(request, bookingid):
         form = BookingForm(request.POST, instance=booking) 
         if form.is_valid():
             try:
-                ()
                 booking.save()
             except:
                 form.add_error(None, "Changes NOT saved - error occured.")
@@ -343,9 +342,5 @@ def delete_user(request, id):
     obj = User.objects.get(id=id)
     obj.delete()
     return redirect('view_users')
-
-# {% url 'delete_user' username=each_admin.username as url_to_delete_user %}
-#      {% include 'partials/confirm_delete_modal.html' with modal_heading='Delete User' modal_text='Are you sure you want to delete this user all of their data?' action=url_to_delete_user %}
-  
 
 
