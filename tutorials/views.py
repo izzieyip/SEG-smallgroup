@@ -226,6 +226,19 @@ class ViewInvoicesView(LoginRequiredMixin, ListView):
     model = Invoices
     template_name = 'invoices.html'
     context_object_name = 'invoiceData'
+
+    def get_queryset(self): #override to include sorting functionality
+        queryset = super().get_queryset() #unsorted query
+        sortby = self.request.GET.get('sortby', 'year') #obtain filter through url (default to booking_date)
+
+        #maps table headers to the respective model data
+        keymap = {
+            'student' : 'student__first_name',
+            'year' : 'year',
+            'amount' : 'amount',
+        }
+
+        return queryset.order_by(keymap.get(sortby, 'year'))
     
     def mark_as_paid(request, id):
         # sets 'paid' to true for a specific entry
