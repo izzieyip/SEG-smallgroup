@@ -187,7 +187,7 @@ class Command(BaseCommand):
             print(f"Failed to create admin: {e}")
 
     def create_admin(self, data):
-        Student.objects.create_user(
+        Admin.objects.create_user(
             username=data['username'],
             email=data['email'],
             password=self.DEFAULT_PASSWORD,
