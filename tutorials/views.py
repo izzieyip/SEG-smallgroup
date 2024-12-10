@@ -11,8 +11,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from django.urls import reverse_lazy
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm,\
-    CreateNewAdminForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm, ConfirmedBookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Booking_requests, Confirmed_booking
 from django.db.models import Q
@@ -21,7 +20,7 @@ from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, Creat
 from tutorials.helpers import login_prohibited
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
 from django.http import HttpResponse, HttpResponseRedirect
-
+from django.shortcuts import render, get_object_or_404, redirect
 
 
 @login_required
@@ -325,7 +324,39 @@ def updateBooking(request, bookingid):
         form = BookingForm(instance=booking)
     return render(request, 'update_booking.html', {'form': form})
 
-def display_all_booking_requests(request):
-    data = Booking_requests.objects.all()
-    data2 = Tutor.objects.all()
-    return render(request, "view_requests.html", {"data": data, "data2": data2})
+
+
+def display_all_booking_requests(request, booking_id=None):
+    # Get all unconfirmed booking requests
+    data = Booking_requests.objects.filter(isConfirmed=False)
+
+    selected_booking = None
+    form = None
+    data2 = Tutor.objects.all()  # Default to show all tutors
+
+    if booking_id:
+        # Fetch the selected booking
+        selected_booking = get_object_or_404(Booking_requests, id=booking_id)
+
+        # Filter tutors by the skill required for the selected booking
+        data2 = Tutor.objects.filter(skills=selected_booking.subject)
+
+        # Initialize the form for the Confirmed Booking
+        if request.method == 'POST':
+            form = ConfirmedBookingForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('view_requests')  # Redirect to prevent resubmission
+        else:
+            form = ConfirmedBookingForm(initial={'booking': selected_booking})
+
+    return render(
+        request,
+        "view_requests.html",
+        {
+            "data": data,
+            "data2": data2,
+            "selected_booking": selected_booking,
+            "form": form,
+        },
+    )
