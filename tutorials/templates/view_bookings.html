@@ -33,6 +33,7 @@
 
       <!-- Manage Buttons -->
       <td>
+        <a href="{% url 'update_booking' confirmedBooking.id %}" class="btn btn-warning">Edit</a> /
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ confirmedBooking.id }}">Delete</button>
       </td>
       <!-- use { url 'update_booking' id } with % for edit hyperlink-->
