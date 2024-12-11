@@ -213,7 +213,7 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
 
         '''FILTERING'''
         filterby = self.request.GET.get('filterby', '') #obtain filter through url (default to nothing)
-        searchfor = self.request.GET.get('search', '').strip() #get text to filter by
+        searchfor = self.request.GET.get('search', '').strip() #get text to filter by, uses .strip for formatting
 
         if not (filterby == '' or searchfor == ''):
             #student and tutor models have first and last names as seperate fields
@@ -223,14 +223,14 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
                     Q(tutor__first_name__icontains=searchfor) | #first name
                     Q(tutor__last_name__icontains=searchfor) | #last name
                     Q(tutor__first_name__icontains=searchfor.split()[0], #first and last name together
-                      tutor__last_name__icontains=" ".join(searchfor.split()[1:])) #uses .split to parse the user input
+                    tutor__last_name__icontains=" ".join(searchfor.split()[1:])) #uses .split to parse the user input
                 )
             elif filterby == 'student':
                 queryset = queryset.filter(
                     Q(booking__student__first_name__icontains=searchfor) | #first name
                     Q(booking__student__last_name__icontains=searchfor) | #last name
                     Q(booking__student__first_name__icontains=searchfor.split()[0], #first and last name together
-                     booking__student__last_name__icontains=" ".join(searchfor.split()[1:]))
+                    booking__student__last_name__icontains=" ".join(searchfor.split()[1:]))
                 )
             else:
                 filter_keymap = {
@@ -262,6 +262,7 @@ class ViewInvoicesView(LoginRequiredMixin, ListView):
     context_object_name = 'invoiceData'
 
     def get_queryset(self): #override to include sorting functionality
+        '''SORTING'''
         queryset = super().get_queryset() #unsorted query
         sortby = self.request.GET.get('sortby', 'year') #obtain filter through url (default to booking_date)
 
@@ -272,6 +273,27 @@ class ViewInvoicesView(LoginRequiredMixin, ListView):
             'amount' : 'amount',
         }
 
+        '''FILTERING'''
+        filterby = self.request.GET.get('filterby', '') #obtain filter through url (default to nothing)
+        searchfor = self.request.GET.get('search', '').strip() #get text to filter by, uses .strip for formatting
+
+        if not (filterby == '' or searchfor == ''):
+            #student models have first and last names as seperate fields
+            #the code below allows both to be searched based on the input (same as above in view_bookings)
+            if filterby == 'student':
+                queryset = queryset.filter(
+                    Q(student__first_name__icontains=searchfor) | #first name
+                    Q(student__last_name__icontains=searchfor) | #last name
+                    Q(student__first_name__icontains=searchfor.split()[0], #first and last name together
+                    student__last_name__icontains=" ".join(searchfor.split()[1:]))
+                )
+            else:
+                filter_keymap = {
+                    'year': 'year__icontains',
+                    'amount': 'amount__icontains',
+                }
+                queryset = queryset.filter(**{filter_keymap.get(filterby): searchfor})
+
         return queryset.order_by(keymap.get(sortby, 'year'))
     
     def mark_as_paid(request, id):
@@ -280,6 +302,12 @@ class ViewInvoicesView(LoginRequiredMixin, ListView):
         obj.paid == True
         obj.save() # commit change to db
         return redirect('invoices') #refresh
+    
+    def get(self, request, *args, **kwargs): #override to ensure forced sort
+        if 'sortby' not in request.GET:
+            return redirect(request.path + '?sortby=year')
+        
+        return super().get(request, *args, **kwargs)
 
 #task 5 booking searching
 #this function is to be assinged to the search button and takes the input of the search bar

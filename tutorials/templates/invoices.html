@@ -4,18 +4,41 @@
 <div class="container">
   <div class="row">
     <div class="col-8">
-      <h1>Outstanding invoices.</h1>
+      <h1>All outstanding invoices.</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-3">
+      <form method="get">
+        <!-- Hidden input to maintain sort -->
+        <input type="hidden" name="sortby" value="{{ request.GET.sortby|default:'date' }}">
+
+        <!-- Choose table filter, uses ifs to save status when page reloads -->
+        <select class="form-select" name="filterby" aria-label="Default select example">
+          <option value="" {% if not request.GET.filterby %}selected{% endif %}>No Filter</option>
+          <option value="student" {% if request.GET.filterby == "student" %}selected{% endif %}>Student =</option>
+          <option value="year" {% if request.GET.filterby == "year" %}selected{% endif %}>Year =</option>
+          <option value="amount" {% if request.GET.filterby == "amount" %}selected{% endif %}>Amount =</option>
+        </select>
+
+        <!-- Text input for 'searchfor' -->
+        <input class="form-control" name="search" id="filterInput" placeholder="Enter filter text" value="{{ request.GET.search|default:'' }}">
+
+        <button type="submit" class="btn btn-primary mt-2">Filter</button>
+      </form>
     </div>
   </div>
   <table class="table table-striped">
     <tr>
-      <th><a href="?sortby=student">Student</a></th> <!-- Sort links -->
-      <th><a href="?sortby=year">Year</a></th>
-      <th><a href="?sortby=amount">Amount</a></th>
+      <!-- Horrible long commands to maintain the sort when a filter is applied :( -->
+      <th><a href="?sortby=student{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Student</a></th> <!-- Sort links -->
+      <th><a href="?sortby=year{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Year</a></th>
+      <th><a href="?sortby=amount{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Amount</a></th>
       <th>Manage</th>
     </tr>
 
     <!--Display each entry of Invoices in table format-->
+    <!-- START TEMP -->
     <tr>
       <td>noah</td>
       <td>2024</td>
@@ -25,7 +48,7 @@
           <button type="submit" class="btn btn-warning">Mark as Paid.</button>
       </td>
     </tr>
-
+    <!-- END TEMP -->
     {% for invoice in invoiceData%}
       {% if invoice.paid == False %} <!-- Only display outstanding invoices, meaning paid != True -->
         <!--Display each entry of Invoices in table format-->
