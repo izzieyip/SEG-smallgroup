@@ -29,7 +29,20 @@ def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    return render(request, 'dashboard.html', {'user': current_user})
+
+    # load the correct dashboard based on user type
+
+    # if the user is an admin user
+    if hasattr(current_user, 'admin'):
+        return render(request, 'dashboard.html', {'user': current_user})
+
+    # if the user is a student user
+    if hasattr(current_user, 'student'):
+        return render(request, 'student_dashboard.html', {'user': current_user})
+
+    # if the user is a tutor user
+    if hasattr(current_user, 'tutor'):
+        return render(request, 'tutor_dashboard.html', {'user': current_user})
 
 
 @login_prohibited
@@ -84,9 +97,21 @@ class LogInView(LoginProhibitedMixin, View):
         form = LogInForm(request.POST)
         self.next = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
         user = form.get_user()
+
         if user is not None:
             login(request, user)
-            return redirect(self.next)
+
+            if hasattr(user, 'admin'):
+                return render(request, 'dashboard.html', {'user': user})
+
+            # if the user is a student user
+            if hasattr(user, 'student'):
+                return render(request, 'student_dashboard.html', {'user': user})
+
+            # if the user is a tutor user
+            if hasattr(user, 'tutor'):
+                return render(request, 'tutor_dashboard.html', {'user': user})
+
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
         return self.render()
 

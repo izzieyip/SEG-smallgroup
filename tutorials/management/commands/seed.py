@@ -1,17 +1,28 @@
-from django.core.management.base import BaseCommand
-from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking
+
 from django.core.management.base import BaseCommand, CommandError
-from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking
+from tutorials.models import User, Student, Tutor, Admin, Booking_requests, Confirmed_booking
 
 import pytz
 from faker import Faker
 import random
 import datetime
 
-user_fixtures = [
+# default users for each type for testing
+# @student, @tutor, @admin all default password: Password123
+
+admin_fixtures = [
     {'username': '@johndoe', 'email': 'john.doe@example.org', 'first_name': 'John', 'last_name': 'Doe'},
     {'username': '@janedoe', 'email': 'jane.doe@example.org', 'first_name': 'Jane', 'last_name': 'Doe'},
     {'username': '@charlie', 'email': 'charlie.johnson@example.org', 'first_name': 'Charlie', 'last_name': 'Johnson'},
+    {'username': '@admin', 'email': 'admin@example.org', 'first_name': 'Admin', 'last_name': 'Admin'}
+]
+
+student_fixtures = [
+    {'username': '@student', 'email': 'liam.doe@example.org', 'first_name': 'Liam', 'last_name': 'Doe'}
+]
+
+tutor_fixtures = [
+    {'username': '@tutor', 'email': 'ryan.reynolds@example.org', 'first_name': 'Ryan', 'last_name': 'Reynolds', 'skills': "CPP", 'experience_level': 4, 'available_days': "SUN", 'available_times': 1}
 ]
 
 class Command(BaseCommand):
@@ -78,8 +89,13 @@ class Command(BaseCommand):
 
         
     def generate_user_fixtures(self):
-        for data in user_fixtures:
-            self.try_create_user(data)
+        # creates default users of each type for testing purposes
+        for data in admin_fixtures:
+            self.try_create_admin(data)
+        for data in student_fixtures:
+            self.try_create_student(data)
+        for data in tutor_fixtures:
+            self.try_create_tutor(data)
        
     def try_create_user(self, data):
         try:
@@ -108,6 +124,7 @@ class Command(BaseCommand):
             print(f"Seeding tutor {tutor_count}/{self.USER_COUNT}", end='\r')
             self.generate_tutor()
             tutor_count = Tutor.objects.count()
+
 
     # STUDENT
     def generate_student(self):
@@ -187,7 +204,7 @@ class Command(BaseCommand):
             print(f"Failed to create admin: {e}")
 
     def create_admin(self, data):
-        Student.objects.create_user(
+        Admin.objects.create_user(
             username=data['username'],
             email=data['email'],
             password=self.DEFAULT_PASSWORD,
