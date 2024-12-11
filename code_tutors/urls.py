@@ -38,9 +38,10 @@ urlpatterns = [
     path('view_requests/', views.display_all_booking_requests, name='view_requests'),
     path('create_new_admin/', views.CreateNewAdminView.as_view() , name='create_new_admin'),
     path('update_booking/<int:booking_id>', views.updateBooking, name='update_booking'),
-    #path('invoices/', views.ViewInvoices, name='invoices') (wip),
     path('view_users/', views.display_all_users, name='view_users'),
     path('delete_user/<int:id>/', views.delete_user, name='delete_user')
+    path('invoices/', views.ViewInvoicesView.as_view(), name='invoices'),
+    path('pay_invoice/<int:id>/', views.ViewInvoicesView.mark_as_paid, name='pay_invoice'),
 ]
 
 

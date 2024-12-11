@@ -1,4 +1,4 @@
-"""Tests of the home view."""
+"""Tests of the invoices view."""
 from django.test import TestCase
 from django.urls import reverse
 from datetime import date, time
@@ -6,13 +6,17 @@ from tutorials.models import *
 from tutorials.tests.helpers import reverse_with_next
 
 class BookingViewTestCase(TestCase):
-    """Tests of the view_bookings view."""
+    """Tests of the invoices view."""
 
     fixtures = ['tutorials/tests/fixtures/default_user.json']
 
     def setUp(self):
+        #NEEDS NEW INVOICE MODEL TO FINISH, JUST GO THROUGH AND REPLACE STUFF WHEN DONE
+
+        '''
+
         #Setup admin login
-        self.url = reverse('view_bookings')  + '?sortby=date' #to prevent redirect
+        self.url = reverse('invoices')  + '?sortby=year' #to prevent redirect
         self.user = Admin.objects.create(
             username = "@AdminLogin",
             first_name="Admin", 
@@ -22,7 +26,7 @@ class BookingViewTestCase(TestCase):
         )
         #User.objects.get(username='@johndoe')
 
-        '''Needs a sample booking to test deleting it'''
+        #Needs a sample invoice to test deleting it
         #Generate sample data for Student and Tutor
         self.student = Student.objects.create(
             username = "@Jamesstudent",
@@ -108,8 +112,6 @@ class BookingViewTestCase(TestCase):
         self.assertContains(response, 'PY') #order matters
         self.assertContains(response, 'DJ')
 
-    '''EDIT BUTTON TESTS GO HERE'''
-
     def test_delete_booking(self):
         self.client.login(username=self.user.username, password='Password123')
         bookingCountBefore = Confirmed_booking.objects.count()
@@ -117,3 +119,5 @@ class BookingViewTestCase(TestCase):
         self.assertEqual(response.status_code, 302) #test for redirect
         bookingCountAfter = Confirmed_booking.objects.count()
         self.assertEqual(bookingCountAfter, bookingCountBefore - 1)
+    
+    '''
