@@ -43,6 +43,7 @@ def dashboard(request):
     # if the user is a tutor user
     if hasattr(current_user, 'tutor'):
         return render(request, 'tutor_dashboard.html', {'user': current_user})
+    
 
 
 @login_prohibited
