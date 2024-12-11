@@ -11,8 +11,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from django.urls import reverse_lazy
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm,\
-    CreateNewAdminForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm
 from tutorials.helpers import login_prohibited
 from django.db.models import Q, F
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
@@ -198,11 +197,12 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
     context_object_name = 'bookingData'
 
     def get_queryset(self): #override to include sorting functionality
+        '''SORTING'''
         queryset = super().get_queryset() #unsorted query
-        sortby = self.request.GET.get('sortby', 'booking_date') #obtain filter through url (default to booking_date)
+        sortby = self.request.GET.get('sortby', 'booking_date') #obtain sort through url (default to booking_date)
 
         #maps table headers to the respective model data
-        keymap = {
+        sort_keymap = {
             'date' : 'booking_date',
             'time' : 'booking_time',
             'tutor' : 'tutor__first_name',
@@ -211,7 +211,35 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
             'difficulty' : 'booking__difficulty',
         }
 
-        return queryset.order_by(keymap.get(sortby, 'booking_date'))
+        '''FILTERING'''
+        filterby = self.request.GET.get('filterby', '') #obtain filter through url (default to nothing)
+        searchfor = self.request.GET.get('search', '').strip() #get text to filter by
+
+        if not (filterby == '' or searchfor == ''):
+            #student and tutor models have first and last names as seperate fields
+            #the code below allows both to be searched based on the input
+            if filterby == 'tutor':
+                queryset = queryset.filter(
+                    Q(tutor__first_name__icontains=searchfor) | #first name
+                    Q(tutor__last_name__icontains=searchfor) | #last name
+                    Q(tutor__first_name__icontains=searchfor.split()[0], #first and last name together
+                      tutor__last_name__icontains=" ".join(searchfor.split()[1:])) #uses .split to parse the user input
+                )
+            elif filterby == 'student':
+                queryset = queryset.filter(
+                    Q(booking__student__first_name__icontains=searchfor) | #first name
+                    Q(booking__student__last_name__icontains=searchfor) | #last name
+                    Q(booking__student__first_name__icontains=searchfor.split()[0], #first and last name together
+                     booking__student__last_name__icontains=" ".join(searchfor.split()[1:]))
+                )
+            else:
+                filter_keymap = {
+                    'subject': 'booking__subject__icontains',
+                    'difficulty': 'booking__difficulty__icontains',
+                }
+                queryset = queryset.filter(**{filter_keymap.get(filterby): searchfor})
+
+        return queryset.order_by(sort_keymap.get(sortby, 'booking_date'))
 
     def delete_booking(request, id):
         # used with delete button in manage table
@@ -219,6 +247,12 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
         obj.booking.delete() #delete Booking_requests object too
         obj.delete()
         return redirect('view_bookings')
+    
+    def get(self, request, *args, **kwargs): #override to ensure forced sort
+        if 'sortby' not in request.GET:
+            return redirect(request.path + '?sortby=date')
+        
+        return super().get(request, *args, **kwargs)
 
 class ViewInvoicesView(LoginRequiredMixin, ListView):
     """Display the confirmed bookings as a table."""

@@ -9,14 +9,37 @@
       <button type="button" class="btn btn-outline-info btn-lg"><a href="{% url 'create_booking' %}" class="button">Create a new Booking</a></button>
     </div>
   </div>
+  <div class="row">
+    <div class="col-3">
+      <form method="get">
+        <!-- Hidden input to maintain sort -->
+        <input type="hidden" name="sortby" value="{{ request.GET.sortby|default:'date' }}">
+
+        <!-- Choose table filter, uses ifs to save status when page reloads -->
+        <select class="form-select" name="filterby" aria-label="Default select example">
+          <option value="" {% if not request.GET.filterby %}selected{% endif %}>No Filter</option>
+          <option value="tutor" {% if request.GET.filterby == "tutor" %}selected{% endif %}>Tutor =</option>
+          <option value="student" {% if request.GET.filterby == "student" %}selected{% endif %}>Student =</option>
+          <option value="subject" {% if request.GET.filterby == "subject" %}selected{% endif %}>Subject =</option>
+          <option value="difficulty" {% if request.GET.filterby == "difficulty" %}selected{% endif %}>Difficulty =</option>
+        </select>
+
+        <!-- Text input for 'searchfor' -->
+        <input class="form-control" name="search" id="filterInput" placeholder="Enter filter text" value="{{ request.GET.search|default:'' }}">
+
+        <button type="submit" class="btn btn-primary mt-2">Filter</button>
+      </form>
+    </div>
+  </div>
   <table class="table table-striped">
     <tr>
-      <th><a href="?sortby=date">Date</a></th> <!-- Sort links -->
-      <th><a href="?sortby=time">Time</a></th>
-      <th><a href="?sortby=tutor">Tutor</a></th>
-      <th><a href="?sortby=student">Student</a></th>
-      <th><a href="?sortby=subject">Subject</a></th>
-      <th><a href="?sortby=difficulty">Difficulty</a></th>
+      <!-- Horrible long commands to maintain the sort when a filter is applied :( -->
+      <th><a href="?sortby=date{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Date</a></th>
+        <th><a href="?sortby=time{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Time</a></th>
+        <th><a href="?sortby=tutor{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Tutor</a></th>
+        <th><a href="?sortby=student{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Student</a></th>
+        <th><a href="?sortby=subject{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Subject</a></th>
+        <th><a href="?sortby=difficulty{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Difficulty</a></th>
       <th>Manage</th>
     </tr>
 
