@@ -16,7 +16,7 @@ from tutorials.helpers import login_prohibited
 from django.db.models import Q, F
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
-from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, Invoices
+from tutorials.models import *
 from django.http import HttpResponse, HttpResponseRedirect
 
 
@@ -26,7 +26,20 @@ def dashboard(request):
     """Display the current user's dashboard."""
 
     current_user = request.user
-    return render(request, 'dashboard.html', {'user': current_user})
+
+    # load the correct dashboard based on user type
+
+    # if the user is an admin user
+    if hasattr(current_user, 'admin'):
+        return render(request, 'dashboard.html', {'user': current_user})
+
+    # if the user is a student user
+    if hasattr(current_user, 'student'):
+        return render(request, 'student_dashboard.html', {'user': current_user})
+
+    # if the user is a tutor user
+    if hasattr(current_user, 'tutor'):
+        return render(request, 'tutor_dashboard.html', {'user': current_user})
 
 
 @login_prohibited
@@ -81,9 +94,21 @@ class LogInView(LoginProhibitedMixin, View):
         form = LogInForm(request.POST)
         self.next = request.POST.get('next') or settings.REDIRECT_URL_WHEN_LOGGED_IN
         user = form.get_user()
+
         if user is not None:
             login(request, user)
-            return redirect(self.next)
+
+            if hasattr(user, 'admin'):
+                return render(request, 'dashboard.html', {'user': user})
+
+            # if the user is a student user
+            if hasattr(user, 'student'):
+                return render(request, 'student_dashboard.html', {'user': user})
+
+            # if the user is a tutor user
+            if hasattr(user, 'tutor'):
+                return render(request, 'tutor_dashboard.html', {'user': user})
+
         messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
         return self.render()
 
@@ -401,7 +426,6 @@ def updateBooking(request, bookingid):
         form = BookingForm(request.POST, instance=booking) 
         if form.is_valid():
             try:
-                ()
                 booking.save()
             except:
                 form.add_error(None, "Changes NOT saved - error occured.")
@@ -413,7 +437,23 @@ def updateBooking(request, bookingid):
         form = BookingForm(instance=booking)
     return render(request, 'update_booking.html', {'form': form})
 
+# view function for the splitscreen with booking requests and tutors
 def display_all_booking_requests(request):
     data = Booking_requests.objects.all()
     data2 = Tutor.objects.all()
     return render(request, "view_requests.html", {"data": data, "data2": data2})
+
+# view function to display all users in one page
+def display_all_users(request):
+   admin = User.objects.values('id','username', 'first_name', 'last_name', 'email').exclude(student__isnull=False).exclude(tutor__isnull=False)
+   students = Student.objects.values('id','username', 'first_name', 'last_name', 'email')
+   tutors = Tutor.objects.values('id','username', 'first_name', 'last_name', 'email')
+   return render(request, "view_users.html", {"admin" : admin, 'students': students, 'tutors': tutors})
+
+# view function to be able to delete a user
+def delete_user(request, id):
+    obj = User.objects.get(id=id)
+    obj.delete()
+    return redirect('view_users')
+
+

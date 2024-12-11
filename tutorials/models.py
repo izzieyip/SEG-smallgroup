@@ -94,8 +94,8 @@ class Tutor(User):
 
 
 class Admin(User):
-    def __str__(self) -> str:
-        return super().__str__()
+   def __str__(self) -> str:
+       return super().__str__()
 
 #Pending Bookings class (no tutor assigned)
 #Refers to objects of the student class

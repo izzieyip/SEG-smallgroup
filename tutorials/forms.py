@@ -157,13 +157,14 @@ class CreateNewAdminForm(forms.ModelForm, NewPasswordMixin):
 
     def save(self, commit=True):
         """Create a new admin user with this data."""
-        admin = Admin.objects.create_user(
-            username = self.cleaned_data.get('username'),
-            first_name=self.cleaned_data.get('first_name'),
-            last_name=self.cleaned_data.get('last_name'),
-            email=self.cleaned_data.get('email'),
-            password=self.cleaned_data.get('new_password'),
-        )
+        if self.is_valid():
+            admin = Admin.objects.create_user(
+                username = self.cleaned_data.get('username'),
+                first_name=self.cleaned_data.get('first_name'),
+                last_name=self.cleaned_data.get('last_name'),
+                email=self.cleaned_data.get('email'),
+                password=self.cleaned_data.get('new_password'),
+            )
         return admin
 
       

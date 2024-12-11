@@ -25,6 +25,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('student_dashboard/', views.dashboard, name='student_dashboard'),
+    path('tutor_dashboard/', views.dashboard, name='tutor_dashboard'),
     path('log_in/', views.LogInView.as_view(), name='log_in'),
     path('log_out/', views.log_out, name='log_out'),
     path('password/', views.PasswordView.as_view(), name='password'),
@@ -34,8 +36,10 @@ urlpatterns = [
     path('delete-booking/<int:id>/', views.ViewBookingsView.delete_booking, name='delete_booking'),
     path('create_booking/', views.createBooking, name='create_booking'),
     path('view_requests/', views.display_all_booking_requests, name='view_requests'),
-    #path('create_new_admin/', views.CreateNewAdminView.as_view() , name='create_new_admin')
-    #path('update_booking/<int:bookingid>/', views.updateBooking, name='update_booking'),
+    path('create_new_admin/', views.CreateNewAdminView.as_view() , name='create_new_admin'),
+    path('update_booking/<int:booking_id>', views.updateBooking, name='update_booking'),
+    path('view_users/', views.display_all_users, name='view_users'),
+    path('delete_user/<int:id>/', views.delete_user, name='delete_user')
     path('invoices/', views.ViewInvoicesView.as_view(), name='invoices'),
     path('pay_invoice/<int:id>/', views.ViewInvoicesView.mark_as_paid, name='pay_invoice'),
 ]
