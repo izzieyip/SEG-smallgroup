@@ -7,3 +7,4 @@ class TutorialsConfig(AppConfig):
 
     def ready(self):
         import tutorials.signals  # Register signals
+        print("Signals imported successfully!")

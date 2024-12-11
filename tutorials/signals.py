@@ -5,17 +5,24 @@ import random
 import datetime
 
 @receiver(post_save, sender=Confirmed_booking)
-def create_invoice_on_booking(self, sender, instance, created, **kwargs):
+def create_invoice_on_booking(sender, instance, created, **kwargs):
     # this method gets called when a confirmed booking is created
+    print(f"Signal received to create an invoice!")
 
     # choosing random values for the fields in invoices
     if created:
+        # uses the student linked to the booking request
         student = instance.booking.student
+
+        # generates random amounts for other fields
         amount = random.randint(100, 400)
         year = random.randint(2024, 2025)
         paid = random.choice([True, False])
 
-        Invoice.objects.create(
+        Invoices.objects.create(
+            # link the invoice to the confirmed_booking
+            booking=instance,
+            # link the invoice to the student as well
             student=student,
             amount=amount,
             year=year,
@@ -24,3 +31,6 @@ def create_invoice_on_booking(self, sender, instance, created, **kwargs):
 
         # this is for debugging
         print(f"Invoice created for {student.username} with amount: {amount}")
+
+    else:
+        print(f"Invoice creation failed")

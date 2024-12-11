@@ -274,7 +274,7 @@ class Command(BaseCommand):
         )
 
         # when a confirmed booking is created, automatically create an invoice
-        create_invoice_on_booking(self, sender, instance, created, **kwargs)
+        # a signal is sent to the receiver in signals.py
 
 # Helper functions
 def create_username(first_name, last_name):
