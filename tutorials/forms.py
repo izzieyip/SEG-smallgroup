@@ -140,7 +140,7 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
                     email=self.cleaned_data.get('email'),
                     password=self.cleaned_data.get('new_password'))
                 return student
-        return user
+
 
 
 class CreateNewAdminForm(forms.ModelForm, NewPasswordMixin):

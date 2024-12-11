@@ -40,7 +40,8 @@ urlpatterns = [
     path('update_booking/<int:booking_id>', views.updateBooking, name='update_booking'),
     #path('invoices/', views.ViewInvoices, name='invoices') (wip),
     path('view_users/', views.display_all_users, name='view_users'),
-    path('delete_user/<int:id>/', views.delete_user, name='delete_user')
+    path('delete_user/<int:id>/', views.delete_user, name='delete_user'),
+    path('update_user/<int:user_id>/', views.update_user, name = 'update_user')
 ]
 
 

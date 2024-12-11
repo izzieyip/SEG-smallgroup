@@ -20,7 +20,7 @@ from tutorials.models import Confirmed_booking, Student, Tutor
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 
 
 
@@ -363,10 +363,31 @@ def display_all_users(request):
    tutors = Tutor.objects.values('id','username', 'first_name', 'last_name', 'email')
    return render(request, "view_users.html", {"admin" : admin, 'students': students, 'tutors': tutors})
 
-# view function to be able to delete a user
+# view function to be able to delete a user when logged in as an admin
 def delete_user(request, id):
     obj = User.objects.get(id=id)
     obj.delete()
     return redirect('view_users')
+
+# view function to update a user's details when logged in as an admin
+def update_user(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise Http404(f"Could not find user with ID {user_id}") 
+    
+    if request.method == "POST":
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            try:
+                form.save()
+            except:
+                form.add_error(None, "It was not possible to update these user details to the database.")
+            else:
+                return redirect("view_users")
+    else:
+        form = UserForm(instance=user)
+    return render(request, 'update_user_details.html', {'user_id': user_id, 'form': form})
+
 
 

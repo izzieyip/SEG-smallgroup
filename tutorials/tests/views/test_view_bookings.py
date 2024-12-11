@@ -1,4 +1,3 @@
-"""Tests of the home view."""
 from django.test import TestCase
 from django.urls import reverse
 from datetime import date, time
