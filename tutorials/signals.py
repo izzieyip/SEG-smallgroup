@@ -7,7 +7,6 @@ import datetime
 @receiver(post_save, sender=Confirmed_booking)
 def create_invoice_on_booking(sender, instance, created, **kwargs):
     # this method gets called when a confirmed booking is created
-    print(f"Signal received to create an invoice!")
 
     # choosing random values for the fields in invoices
     if created:
