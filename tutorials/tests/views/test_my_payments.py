@@ -11,28 +11,22 @@ class BookingViewTestCase(TestCase):
     fixtures = ['tutorials/tests/fixtures/default_user.json']
 
     def setUp(self):
-        #NEEDS NEW INVOICE MODEL TO FINISH, JUST GO THROUGH AND REPLACE STUFF WHEN DONE
-
-        '''
-
         #Setup admin login
-        self.url = reverse('invoices')  + '?sortby=year' #to prevent redirect
-        self.user = Admin.objects.create(
-            username = "@AdminLogin",
-            first_name="Admin", 
-            last_name="Login", 
-            email="adminlogin@example.com", 
-            password="pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
-        )
-        #User.objects.get(username='@johndoe')
+        self.url = reverse('my_payments') + "?sortby=year"
 
-        #Needs a sample invoice to test deleting it
         #Generate sample data for Student and Tutor
         self.student = Student.objects.create(
             username = "@Jamesstudent",
             first_name="James", 
             last_name="Student", 
             email="jamesstudent@example.com", 
+            password="pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
+        )
+        self.otherstudent = Student.objects.create(
+            username = "@Stephstudent",
+            first_name="Steph", 
+            last_name="Student", 
+            email="Stephstudent@example.com", 
         )
         self.tutor = Tutor.objects.create(
             username = "@professordoe",
@@ -43,7 +37,7 @@ class BookingViewTestCase(TestCase):
             experience_level="3"
         )
 
-        #Generate 2 sample Booking Requests to test sorting
+        #Generate 3 sample Booking Requests to test sorting and invalid entries
         self.booking_request1 = Booking_requests.objects.create(
             student=self.student,
             subject="DJ",
@@ -56,21 +50,93 @@ class BookingViewTestCase(TestCase):
             difficulty=1,
             isConfirmed=True
         )
+        self.booking_request3 = Booking_requests.objects.create(
+            student=self.otherstudent,
+            subject="JV",
+            difficulty=2,
+            isConfirmed=True
+        )
 
         #Generate sample Confirmed Bookings
         self.confirmed_booking1 = Confirmed_booking.objects.create(
             booking=self.booking_request1,
             tutor=self.tutor,
-            booking_date=date(2024, 12, 25),
+            booking_date=date(2021, 12, 25),
             booking_time=time(11, 30)
         )
         self.confirmed_booking2 = Confirmed_booking.objects.create(
             booking=self.booking_request2,
             tutor=self.tutor,
-            booking_date=date(2024, 12, 26),
+            booking_date=date(2022, 12, 26),
             booking_time=time(10, 30)
         )
+        self.confirmed_booking3 = Confirmed_booking.objects.create(
+            booking=self.booking_request3,
+            tutor=self.tutor,
+            booking_date=date(2023, 12, 27),
+            booking_time=time(10, 31)
+        )
 
-        USE SIMILAR TESTS FROM MY_BOOKINGS
+        Invoices.objects.all().delete()
+
+        #Generate invoices for both 
+        self.invoice1 = Invoices.objects.create(
+            booking=self.confirmed_booking1,
+            student=self.student,
+            year=2021,
+            amount=500,
+            paid=False,
+        )
+        self.invoice2 = Invoices.objects.create(
+            booking=self.confirmed_booking2,
+            student=self.student,
+            year=2022,
+            amount=200,
+            paid=False,
+        )
+        self.invoice3 = Invoices.objects.create(
+            booking=self.confirmed_booking3,
+            student=self.otherstudent,
+            year=2023,
+            amount=100,
+            paid=False,
+        )
+
+    def test_my_payments_url(self):
+        self.assertEqual(self.url, '/my_payments/?sortby=year')
+
+    def test_get_my_payments(self):
+        self.client.login(username=self.student.username, password='Password123')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'my_payments.html')
+
+    def test_get_my_payments_redirects_when_not_logged_in(self):
+        redirect_url = reverse_with_next('log_in', self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200) 
+
+    def test_correct_booking_display(self): #only payments with this account should be shown
+        self.client.login(username=self.student.username, password='Password123')
+        response = self.client.get(reverse('my_payments'), {'sortby':'year'})
+        self.assertNotContains(response, '2023') #in booking3, which isnt for this user
+
+    def test_default_sorting(self):
+        self.client.login(username=self.student.username, password='Password123')
+        response = self.client.get(reverse('my_payments'), {'sortby':'year'}) #booking 1 should come before 2
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '2021') #order matters
+        self.assertContains(response, '2022')
+
+    def test_custom_sorting(self):
+        self.client.login(username=self.student.username, password='Password123')
+        response = self.client.get(reverse('my_payments'), {'sortby':'amount'}) #booking 2 should come before 1
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '2022') #order matters
+        self.assertContains(response, '2021')
     
-    '''
+    def test_show_no_invoices(self):
+        self.client.login(username=self.student.username, password='Password123')
+        Invoices.objects.all().delete()
+        response = self.client.get(reverse('my_payments'), {'sortby':'year'})
+        self.assertContains(response, 'All settled up!') #message should appear

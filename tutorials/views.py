@@ -11,13 +11,19 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from django.urls import reverse_lazy
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm
+from tutorials.forms import CreateBookingRequest, LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm, ConfirmedBookingForm
 from tutorials.helpers import login_prohibited
-from django.db.models import Q, F, Sum
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, UpdateBookingForm
 from tutorials.helpers import login_prohibited
-from tutorials.models import *
+
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404, redirect
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+
+from django.db.models import Q, F, Sum
+from tutorials.models import *
 
 
 
@@ -40,6 +46,7 @@ def dashboard(request):
     # if the user is a tutor user
     if hasattr(current_user, 'tutor'):
         return render(request, 'tutor_dashboard.html', {'user': current_user})
+    
 
 
 @login_prohibited
@@ -187,7 +194,10 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        self.object = form.save()
+        if (form.cleaned_data('new_password') != form.cleaned_data('password_confirmation')):
+            self.object = form.save()
+        else:
+            form.add_error(None, "Passwords don't match")
         login(self.request, self.object)
         return super().form_valid(form)
 
@@ -271,7 +281,6 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
     def delete_booking(request, id):
         # used with delete button in manage table
         obj = Confirmed_booking.objects.get(id=id)
-        obj.booking.delete() #delete Booking_requests object too
         obj.delete()
         return redirect('view_bookings')
     
@@ -378,13 +387,22 @@ class ViewInvoicesView(LoginRequiredMixin, ListView):
     def mark_as_paid(request, id):
         # sets 'paid' to true for a specific entry
         obj = Invoices.objects.get(id=id)
-        obj.paid == True
+        obj.paid = True
         obj.save() # commit change to db
+
+        return redirect('invoices') #refresh
+    
+    def mark_as_unpaid(request, id):
+        # sets 'paid' to false for a specific entry
+        obj = Invoices.objects.get(id=id)
+        obj.paid = False
+        obj.save() # commit change to db
+        
         return redirect('invoices') #refresh
     
     def get(self, request, *args, **kwargs): #override to ensure forced sort
-        if 'sortby' not in request.GET:
-            return redirect(request.path + '?sortby=year')
+        if 'showpaid' not in request.GET or 'sortby' not in request.GET:
+            return redirect(request.path + '?showpaid=false&sortby=year')
         
         return super().get(request, *args, **kwargs)
     
@@ -446,34 +464,79 @@ def search_confirmed_requests(query):
 
 #"MyForm" palceholder for the create a confirmed booking form
 #i changed ^ to booking form - izzy
+from datetime import timedelta
+
 def create_multiple_objects(request):
     if request.method == 'POST':
-        form = BookingForm(request.POST)
+        form = ConfirmedBookingForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            #can add to the form if we want them to have ana option fo how many bookings they want
-            #number_of_objects = int(request.POST.get('number_of_objects', 1))  # Get the number from the request
-            objects = []
-            #number of bookings can be changed set to 10 for a term
-            for i in range(10):
-                obj = Confirmed_booking(tutor=data['tutorid'],booking_date=[i*7+form.date])#fill according to form make it work
-                objects.append(obj)
-            Confirmed_booking.objects.bulk_create(objects)
-            return redirect('view_bookings.url')#repalce with correct url if wrong?
+
+            try:
+                # Extract details from the form
+                booking_request = data['booking']
+                tutor = data['tutor']
+                start_date = data['booking_date']
+                booking_time = data['booking_time']
+
+                # Create 10 weekly bookings starting from the selected date
+                objects = []
+                for i in range(10):
+                    booking_date = start_date + timedelta(weeks=i)
+                    obj = Confirmed_booking(
+                        booking=booking_request,
+                        tutor=tutor,
+                        booking_date=booking_date,
+                        booking_time=booking_time
+                    )
+                    objects.append(obj)
+
+                # Bulk create the bookings
+                Confirmed_booking.objects.bulk_create(objects)
+
+                # Mark the booking request as confirmed
+                booking_request.isConfirmed = True
+                booking_request.save()
+
+                # Redirect to the view bookings page with a success message
+                messages.success(request, "10 weekly bookings created successfully")
+                return redirect('view_requests')
+            except Exception as e:
+                messages.error(request, f"Error creating bookings: {e}")
+        else:
+            messages.error(request, "Invalid form submission.")
     else:
-        form = BookingForm()
-    #replace splitscreen.html with actual name
+        form = ConfirmedBookingForm()
+
     return render(request, 'splitscreen.html', {'form': form})
 
 
-# displaying the form to create a new booking request
-def CreatingBookingRequest(request):
-    
-    model = Booking_requests
-    form_class = CreateBookingRequest()
-    template_name = "create_booking_requests.html"
-    return render(request, template_name,  context = {'form':form_class})
 
+# displaying the form to create a new booking request
+@login_required
+def creatingBookingRequest(request):
+    if request.method == 'POST':
+        form = CreateBookingRequest(request.POST)
+        print("DEBUG: Form is bound:", form.is_bound)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            if request.user.is_authenticated:
+                student = Student.objects.get(username=request.user.username)
+                instance.student = student
+                instance.save()
+            else:
+                print("no user logged in")
+            print("DEBUG: Form is valid")
+            form.save()
+            return redirect("dashboard")
+        else:
+            print("DEBUG: Form errors:", form.errors)
+    else:
+        form = CreateBookingRequest()
+
+    template_name = "create_booking_requests.html"
+    return render(request, template_name, context={'form': form})
+    
 
 def createBooking(request):
     if request.method == "POST":
@@ -502,41 +565,92 @@ def createBooking(request):
     return render(request, 'create_booking.html', {'form': form})
 
 
-def updateBooking(request, bookingid):
-
-    booking = Confirmed_booking.objects.get(id=bookingid)
-
+def updateBooking(request, booking_id):
+    try:
+        booking = Confirmed_booking.objects.get(id=booking_id)
+    except Confirmed_booking.DoesNotExist:
+        raise Http404(f"Could not find booking with ID {booking_id}") 
+    
     if request.method == "POST":
-        form = BookingForm(request.POST, instance=booking) 
+        form = UpdateBookingForm(request.POST, instance=booking)
         if form.is_valid():
             try:
-                booking.save()
+                form.save()
             except:
-                form.add_error(None, "Changes NOT saved - error occured.")
+                form.add_error(None, "It was not possible to update these booking details to the database.")
             else:
-                path = reverse('dashboard')
-                return HttpResponseRedirect(path)
-            
+                return redirect("view_bookings")
     else:
-        form = BookingForm(instance=booking)
-    return render(request, 'update_booking.html', {'form': form})
+        form = UpdateBookingForm(instance=booking)
+    return render(request, 'update_booking.html', {'booking_id': booking_id, 'form': form})
 
-# view function for the splitscreen with booking requests and tutors
-def display_all_booking_requests(request):
-    data = Booking_requests.objects.all()
-    data2 = Tutor.objects.all()
-    return render(request, "view_requests.html", {"data": data, "data2": data2})
+
+def display_all_booking_requests(request, booking_id=None):
+    # Get all unconfirmed booking requests
+    data = Booking_requests.objects.filter(isConfirmed=False)
+
+    selected_booking = None
+    form = None
+    data2 = Tutor.objects.all()  # Default to show all tutors
+
+    if booking_id:
+        # Fetch the selected booking
+        selected_booking = get_object_or_404(Booking_requests, id=booking_id)
+
+        # Filter tutors by the skill required for the selected booking
+        data2 = Tutor.objects.filter(skills=selected_booking.subject)
+
+        # Initialize the form for the Confirmed Booking
+        if request.method == 'POST':
+            form = ConfirmedBookingForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('view_requests')  # Redirect to prevent resubmission
+        else:
+            form = ConfirmedBookingForm(initial={'booking': selected_booking})
+
+    return render(
+        request,
+        "view_requests.html",
+        {
+            "data": data,
+            "data2": data2,
+            "selected_booking": selected_booking,
+            "form": form,
+        },
+    )
+
 
 # view function to display all users in one page
+@login_required
 def display_all_users(request):
    admin = User.objects.values('id','username', 'first_name', 'last_name', 'email').exclude(student__isnull=False).exclude(tutor__isnull=False)
    students = Student.objects.values('id','username', 'first_name', 'last_name', 'email')
    tutors = Tutor.objects.values('id','username', 'first_name', 'last_name', 'email')
    return render(request, "view_users.html", {"admin" : admin, 'students': students, 'tutors': tutors})
 
-# view function to be able to delete a user
+# view function to be able to delete a user when logged in as an admin
 def delete_user(request, id):
     obj = User.objects.get(id=id)
     obj.delete()
     return redirect('view_users')
 
+# view function to update a user's details when logged in as an admin
+def update_user(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise Http404(f"Could not find user with ID {user_id}") 
+    
+    if request.method == "POST":
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            try:
+                form.save()
+            except:
+                form.add_error(None, "It was not possible to update these user details to the database.")
+            else:
+                return redirect("view_users")
+    else:
+        form = UserForm(instance=user)
+    return render(request, 'update_user_details.html', {'user_id': user_id, 'form': form})

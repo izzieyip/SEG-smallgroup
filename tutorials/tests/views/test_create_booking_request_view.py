@@ -10,7 +10,7 @@ class createBookingRequestViewTestCase(TestCase):
     fixtures = ['tutorials/tests/fixtures/default_user.json']
 
     def setUp(self):
-        self.url = reverse('booking_request')
+        self.url = reverse('create_booking_request')
         self.student = User.objects.get(username='@johndoe')
         self.formInput = {
             "student" : self.student,
@@ -19,7 +19,7 @@ class createBookingRequestViewTestCase(TestCase):
         }
 
     def test_booking_request_url(self):
-        self.assertEqual(self.url, '/request_booking/')
+        self.assertEqual(self.url, '/create_booking_request/')
 
     def test_get_booking_request(self):
         response = self.client.get(self.url)
@@ -31,6 +31,6 @@ class createBookingRequestViewTestCase(TestCase):
 
     def test_request_stored_successfully(self):
         before_count = Booking_requests.objects.count()
-        response = self.client.post(self.url, self.formInput, follow=True)
+        self.client.post(self.url, self.formInput, follow=True)
         after_count = Booking_requests.objects.count()
         self.assertEqual(after_count, before_count+1)

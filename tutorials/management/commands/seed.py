@@ -135,8 +135,8 @@ class Command(BaseCommand):
             student_count = Student.objects.count()
 
         tutor_count = Tutor.objects.count()
-        while tutor_count < self.USER_COUNT:
-            print(f"Seeding tutor {tutor_count}/{self.USER_COUNT}", end='\r')
+        while tutor_count < 100:
+            print(f"Seeding tutor {tutor_count}/100", end='\r')
             self.generate_tutor()
             tutor_count = Tutor.objects.count()
 

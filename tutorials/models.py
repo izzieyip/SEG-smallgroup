@@ -84,7 +84,7 @@ class Student(User):
         return super().__str__() 
 
 class Tutor(User):
-    skills = models.CharField(choices = Skills, max_length= 3, default=None)
+    skills = models.CharField(choices = Skills, max_length= 3, default="DJ")
     experience_level = models.IntegerField(choices= difficulty_levels, default=None)
     available_days = models.CharField(choices=days, max_length=3,default="MON")
     available_times = models.IntegerField(choices=times,default=1)
@@ -105,7 +105,7 @@ class Booking_requests(models.Model):
     #on_delete=models.CASCADE ensure if a student is removed from the students model, their pending bookings are deleted too
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="pending_bookings")
     subject = models.CharField(choices = Skills, max_length= 3)
-    difficulty = models.IntegerField(choices= difficulty_levels, default=None)
+    difficulty = models.IntegerField(choices= difficulty_levels, default=1)
     isConfirmed = models.BooleanField(default=False)
 
     def __str__(self):
