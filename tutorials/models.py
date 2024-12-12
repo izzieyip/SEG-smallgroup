@@ -84,7 +84,7 @@ class Student(User):
         return super().__str__() 
 
 class Tutor(User):
-    skills = models.CharField(choices = Skills, max_length= 3, default=None)
+    skills = models.CharField(choices = Skills, max_length= 3, default="DJ")
     experience_level = models.IntegerField(choices= difficulty_levels, default=None)
     available_days = models.CharField(choices=days, max_length=3,default="MON")
     available_times = models.IntegerField(choices=times,default=1)
@@ -94,8 +94,8 @@ class Tutor(User):
 
 
 class Admin(User):
-    def __str__(self) -> str:
-        return super().__str__()
+   def __str__(self) -> str:
+       return super().__str__()
 
 #Pending Bookings class (no tutor assigned)
 #Refers to objects of the student class
@@ -143,7 +143,8 @@ class Confirmed_booking(models.Model):
 
 
 class Invoices(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="invoices")
+    booking = models.ForeignKey(Confirmed_booking, on_delete=models.CASCADE, related_name="invoices", default=1)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
     year = models.IntegerField(default=datetime.date.today().year)
     amount = models.IntegerField(default=0)
     paid = models.BooleanField(default=False)

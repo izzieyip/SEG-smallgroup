@@ -140,7 +140,7 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
                     email=self.cleaned_data.get('email'),
                     password=self.cleaned_data.get('new_password'))
                 return student
-        return user
+
 
 
 class CreateNewAdminForm(forms.ModelForm, NewPasswordMixin):
@@ -157,13 +157,14 @@ class CreateNewAdminForm(forms.ModelForm, NewPasswordMixin):
 
     def save(self, commit=True):
         """Create a new admin user with this data."""
-        admin = Admin.objects.create_user(
-            username = self.cleaned_data.get('username'),
-            first_name=self.cleaned_data.get('first_name'),
-            last_name=self.cleaned_data.get('last_name'),
-            email=self.cleaned_data.get('email'),
-            password=self.cleaned_data.get('new_password'),
-        )
+        if self.is_valid():
+            admin = Admin.objects.create_user(
+                username = self.cleaned_data.get('username'),
+                first_name=self.cleaned_data.get('first_name'),
+                last_name=self.cleaned_data.get('last_name'),
+                email=self.cleaned_data.get('email'),
+                password=self.cleaned_data.get('new_password'),
+            )
         return admin
 
       
@@ -224,4 +225,11 @@ class ConfirmedBookingForm(forms.ModelForm):
         # Restrict booking choices to only unconfirmed bookings
         self.fields['booking'].queryset = Booking_requests.objects.filter(isConfirmed=False)
 
+
+
+class UpdateBookingForm(forms.ModelForm):
+    # a form to aid in the updating of bookings
+    class Meta:
+        model = Confirmed_booking
+        fields = ["booking_date", "booking_time", "tutor"]
 
