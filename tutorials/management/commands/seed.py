@@ -1,6 +1,8 @@
 
+from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking, Admin, Invoices
 from django.core.management.base import BaseCommand, CommandError
-from tutorials.models import User, Student, Tutor, Admin, Booking_requests, Confirmed_booking
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 import pytz
 from faker import Faker
@@ -120,8 +122,8 @@ class Command(BaseCommand):
             student_count = Student.objects.count()
 
         tutor_count = Tutor.objects.count()
-        while tutor_count < self.USER_COUNT:
-            print(f"Seeding tutor {tutor_count}/{self.USER_COUNT}", end='\r')
+        while tutor_count < 100:
+            print(f"Seeding tutor {tutor_count}/100", end='\r')
             self.generate_tutor()
             tutor_count = Tutor.objects.count()
 
@@ -150,6 +152,7 @@ class Command(BaseCommand):
             first_name=data['first_name'],
             last_name=data['last_name']
         )
+
 
     # TUTOR
     def generate_tutor(self):
@@ -186,6 +189,7 @@ class Command(BaseCommand):
             available_times=data['available_times']
         )
 
+
     # Admin User
     def generate_admin(self):
         first_name = self.faker.first_name()
@@ -212,6 +216,10 @@ class Command(BaseCommand):
             last_name=data['last_name']
         )
 
+# Invoices
+
+# added signals.py to generate random invoices when a signal that a confirmed booking
+    # ... has been made is received
 
 
 ####################################################################################################
@@ -283,8 +291,8 @@ class Command(BaseCommand):
             booking_time=data['booking_time']
         )
 
-    
-
+        # when a confirmed booking is created, automatically create an invoice
+        # a signal is sent to the receiver in signals.py
 
 # Helper functions
 def create_username(first_name, last_name):

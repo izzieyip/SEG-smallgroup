@@ -11,16 +11,16 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from django.urls import reverse_lazy
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm,\
-    CreateNewAdminForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm
 from tutorials.helpers import login_prohibited
-from tutorials.models import Booking_requests, Confirmed_booking
-from django.db.models import Q
-from tutorials.models import Confirmed_booking, Student, Tutor
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm, UpdateBookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+
+from django.db.models import Q, F, Sum
+from tutorials.models import *
+
 
 
 
@@ -225,27 +225,200 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
     template_name = 'view_bookings.html'
     context_object_name = 'bookingData'
 
+    def get_queryset(self): #override to include sorting / filtering functionality
+        '''SORTING'''
+        queryset = super().get_queryset() #unsorted query
+        sortby = self.request.GET.get('sortby', 'booking_date') #obtain sort through url (default to booking_date)
+
+        #maps table headers to the respective model data
+        sort_keymap = {
+            'date' : 'booking_date',
+            'time' : 'booking_time',
+            'tutor' : 'tutor__first_name',
+            'student' : 'booking__student__first_name',
+            'subject' : 'booking__subject',
+            'difficulty' : 'booking__difficulty',
+        }
+
+        '''FILTERING'''
+        filterby = self.request.GET.get('filterby', '') #obtain filter through url (default to nothing)
+        searchfor = self.request.GET.get('search', '').strip() #get text to filter by, uses .strip for formatting
+
+        if not (filterby == '' or searchfor == ''):
+            #student and tutor models have first and last names as seperate fields
+            #the code below allows both to be searched based on the input
+            if filterby == 'tutor':
+                queryset = queryset.filter(
+                    Q(tutor__first_name__icontains=searchfor) | #first name
+                    Q(tutor__last_name__icontains=searchfor) | #last name
+                    Q(tutor__first_name__icontains=searchfor.split()[0], #first and last name together
+                    tutor__last_name__icontains=" ".join(searchfor.split()[1:])) #uses .split to parse the user input
+                )
+            elif filterby == 'student':
+                queryset = queryset.filter(
+                    Q(booking__student__first_name__icontains=searchfor) | #first name
+                    Q(booking__student__last_name__icontains=searchfor) | #last name
+                    Q(booking__student__first_name__icontains=searchfor.split()[0], #first and last name together
+                    booking__student__last_name__icontains=" ".join(searchfor.split()[1:]))
+                )
+            else:
+                filter_keymap = {
+                    'subject': 'booking__subject__icontains',
+                    'difficulty': 'booking__difficulty__icontains',
+                }
+                queryset = queryset.filter(**{filter_keymap.get(filterby): searchfor})
+
+        return queryset.order_by(sort_keymap.get(sortby, 'booking_date'))
+
     def delete_booking(request, id):
         # used with delete button in manage table
         obj = Confirmed_booking.objects.get(id=id)
         obj.booking.delete() #delete Booking_requests object too
         obj.delete()
         return redirect('view_bookings')
+    
+    def get(self, request, *args, **kwargs): #override to ensure forced sort
+        if 'sortby' not in request.GET:
+            return redirect(request.path + '?sortby=date')
+        
+        return super().get(request, *args, **kwargs)
+    
+class ViewMyBookings(LoginRequiredMixin, ListView):
+    """Display the user's associated bookings as a table."""
+    
+    model = Confirmed_booking
+    template_name = 'my_bookings.html'
+    context_object_name = 'bookingData'
 
+    def get_queryset(self): #override to include sorting / filtering functionality
+        queryset = super().get_queryset() #unsorted query
+        sortby = self.request.GET.get('sortby', 'booking_date') #obtain sort through url (default to booking_date)
+        usertype = self.request.GET.get('user', 'student') #obtain user type through url (default to student)
+        current_username = self.request.user.username #obtain logged in username
 
-#UPDATE BELOW TO A CLASS
-#needs import model and the data when merged 
-"""
-@login_required
-def ViewInvoices(request): 
-    ''' UNCOMMENT BELOW WHEN ADMIN USERS ARE IMPLEMENTED
-    #Block permission if the user is not an Admin
-    if not request.user.is_superuser == True:
-        return render(request, 'permission_denied.html') '''
+        #maps table headers to the respective model data
+        keymap = {
+            'date' : 'booking_date',
+            'time' : 'booking_time',
+            'tutor' : 'tutor__first_name',
+            'student' : 'booking__student__first_name',
+            'subject' : 'booking__subject',
+            'difficulty' : 'booking__difficulty',
+        }
 
-    invoice_data = Invoice.objects.get( ) #Fetch all invoices that are outstanding
-    context = {'invoiceData':invoice_data}
-    return render(request, 'invoices.html', context) """
+        #filter only bookings related to current user
+        if usertype == 'student': 
+            queryset = queryset.filter(booking__student__username=current_username) 
+        elif usertype == 'tutor': 
+            queryset = queryset.filter(tutor__username=current_username)
+
+        return queryset.order_by(keymap.get(sortby, 'booking_date'))
+    
+    def get(self, request, *args, **kwargs): #override to ensure forced sort
+        current_user = request.user #obtain user info
+        attempted_user_type = request.GET.get('user') #to prevent loading the wrong page
+
+        # if the user is a admin user
+        if hasattr(current_user, 'admin'): 
+            #if an admin happens to load the page, send them to the correct version
+            return redirect('view_bookings')
+        
+        # if the user is a student user
+        if hasattr(current_user, 'student'):
+            if attempted_user_type == 'tutor' or 'user' not in request.GET:
+                return redirect(request.path + '?user=student')
+
+        # if the user is a tutor user
+        if hasattr(current_user, 'tutor'):
+            if attempted_user_type == 'studentr' or 'user' not in request.GET:
+                return redirect(request.path + '?user=tutor')
+        
+        return super().get(request, *args, **kwargs)
+
+class ViewInvoicesView(LoginRequiredMixin, ListView):
+    """Display all invoices as a table."""
+    
+    model = Invoices
+    template_name = 'invoices.html'
+    context_object_name = 'invoiceData'
+
+    def get_queryset(self): #override to include sorting / filtering functionality
+        '''SORTING'''
+        queryset = super().get_queryset() #unsorted query
+        sortby = self.request.GET.get('sortby', 'year') #obtain filter through url (default to booking_date)
+
+        #maps table headers to the respective model data
+        keymap = {
+            'student' : 'student__first_name',
+            'year' : 'year',
+            'amount' : 'amount',
+        }
+
+        '''FILTERING'''
+        filterby = self.request.GET.get('filterby', '') #obtain filter through url (default to nothing)
+        searchfor = self.request.GET.get('search', '').strip() #get text to filter by, uses .strip for formatting
+
+        if not (filterby == '' or searchfor == ''):
+            #student models have first and last names as seperate fields
+            #the code below allows both to be searched based on the input (same as above in view_bookings)
+            if filterby == 'student':
+                queryset = queryset.filter(
+                    Q(student__first_name__icontains=searchfor) | #first name
+                    Q(student__last_name__icontains=searchfor) | #last name
+                    Q(student__first_name__icontains=searchfor.split()[0], #first and last name together
+                    student__last_name__icontains=" ".join(searchfor.split()[1:]))
+                )
+            else:
+                filter_keymap = {
+                    'year': 'year__icontains',
+                    'amount': 'amount__icontains',
+                }
+                queryset = queryset.filter(**{filter_keymap.get(filterby): searchfor})
+
+        return queryset.order_by(keymap.get(sortby, 'year'))
+    
+    def mark_as_paid(request, id):
+        # sets 'paid' to true for a specific entry
+        obj = Invoices.objects.get(id=id)
+        obj.paid == True
+        obj.save() # commit change to db
+        return redirect('invoices') #refresh
+    
+    def get(self, request, *args, **kwargs): #override to ensure forced sort
+        if 'sortby' not in request.GET:
+            return redirect(request.path + '?sortby=year')
+        
+        return super().get(request, *args, **kwargs)
+    
+class ViewMyPayments(LoginRequiredMixin, ListView):
+    """Display the user's associated invoices as a table."""
+    
+    model = Invoices
+    template_name = 'my_payments.html'
+    context_object_name = 'invoiceData'
+
+    def get_queryset(self): #override to include sorting / filtering functionality
+        queryset = super().get_queryset() #unsorted query
+        sortby = self.request.GET.get('sortby', 'year') #obtain sort through url (default to year)
+
+        #maps table headers to the respective model data
+        keymap = {
+            'year' : 'year',
+            'amount' : 'amount',
+        }
+
+        #filter only bookings related to current student
+        current_username = self.request.user.username #obtain logged in username
+        queryset = queryset.filter(student__username=current_username) 
+
+        return queryset.order_by(keymap.get(sortby, 'year'))
+    
+    def get_context_data(self, **kwargs): #override to pass the sum of outstanding payments
+        context = super().get_context_data(**kwargs) 
+        current_username = self.request.user.username 
+        total_payments = self.model.objects.filter(student__username=current_username).aggregate(Sum('amount'))['amount__sum'] 
+        context['total_payments'] = total_payments 
+        return context
 
 #task 5 booking searching
 #this function is to be assinged to the search button and takes the input of the search bar
