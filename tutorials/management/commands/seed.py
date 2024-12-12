@@ -89,15 +89,24 @@ class Command(BaseCommand):
         self.generate_bookingrequests()
         self.generate_bookings()
 
-        
     def generate_user_fixtures(self):
         # creates default users of each type for testing purposes
         for data in admin_fixtures:
             self.try_create_admin(data)
-        for data in student_fixtures:
-            self.try_create_student(data)
         for data in tutor_fixtures:
             self.try_create_tutor(data)
+        for data in student_fixtures:
+            self.try_create_student(data)
+            student = Student.objects.get(username=data['username'])  # Get the created student
+
+            # long-winded but ensures that the default student will always have lessons to view
+            booking_data = {'student': student, 'subject': "CPP", 'difficulty': 3, 'isConfirmed': False}
+            self.try_create_bookingrequests(booking_data)
+            booking = Booking_requests.objects.filter(student=student).latest('id')
+            tutor = random.choice(Tutor.objects.all())
+            date = self.faker.date_this_year()
+            time = self.faker.time('%H:%M')
+            self.try_create_booking({'booking': booking, 'tutor': tutor, 'booking_date': date, 'booking_time': time})
        
     def try_create_user(self, data):
         try:
@@ -284,15 +293,30 @@ class Command(BaseCommand):
             pass
 
     def create_booking(self, data):
-        Confirmed_booking.objects.create(
-            booking=data['booking'],
-            tutor=data['tutor'],
-            booking_date=data['booking_date'],
-            booking_time=data['booking_time']
-        )
+        # Extract details from the form
+        booking_request = data['booking']
+        tutor = data['tutor']
+        start_date = data['booking_date']
+        booking_time = data['booking_time']
 
-        # when a confirmed booking is created, automatically create an invoice
-        # a signal is sent to the receiver in signals.py
+        # Create 10 weekly bookings starting from the selected date
+        objects = []
+        for i in range(10):
+            booking_date = start_date + timedelta(weeks=i)
+            obj = Confirmed_booking(
+                booking=booking_request,
+                tutor=tutor,
+                booking_date=booking_date,
+                booking_time=booking_time
+            )
+            objects.append(obj)
+
+        # Bulk create the bookings
+        Confirmed_booking.objects.bulk_create(objects)
+
+        # Mark the booking request as confirmed
+        booking_request.isConfirmed = True
+        booking_request.save()
 
 # Helper functions
 def create_username(first_name, last_name):
