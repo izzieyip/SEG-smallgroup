@@ -1,3 +1,4 @@
+
 """Tests of the view bookings view."""
 from django.test import TestCase
 from django.urls import reverse

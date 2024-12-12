@@ -31,6 +31,6 @@ class createBookingRequestViewTestCase(TestCase):
 
     def test_request_stored_successfully(self):
         before_count = Booking_requests.objects.count()
-        response = self.client.post(self.url, self.formInput, follow=True)
+        self.client.post(self.url, self.formInput, follow=True)
         after_count = Booking_requests.objects.count()
         self.assertEqual(after_count, before_count+1)

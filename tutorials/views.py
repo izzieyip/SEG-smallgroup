@@ -13,11 +13,14 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm
 from tutorials.helpers import login_prohibited
-from django.db.models import Q, F, Sum
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm, UpdateBookingForm
 from tutorials.helpers import login_prohibited
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+
+from django.db.models import Q, F, Sum
 from tutorials.models import *
-from django.http import HttpResponse, HttpResponseRedirect
+
 
 
 
@@ -40,6 +43,7 @@ def dashboard(request):
     # if the user is a tutor user
     if hasattr(current_user, 'tutor'):
         return render(request, 'tutor_dashboard.html', {'user': current_user})
+    
 
 
 @login_prohibited
@@ -500,24 +504,26 @@ def createBooking(request):
     return render(request, 'create_booking.html', {'form': form})
 
 
-def updateBooking(request, bookingid):
-
-    booking = Confirmed_booking.objects.get(id=bookingid)
-
+def updateBooking(request, booking_id):
+    try:
+        booking = Confirmed_booking.objects.get(id=booking_id)
+    except Confirmed_booking.DoesNotExist:
+        raise Http404(f"Could not find booking with ID {booking_id}") 
+    
     if request.method == "POST":
-        form = BookingForm(request.POST, instance=booking) 
+        form = UpdateBookingForm(request.POST, instance=booking)
         if form.is_valid():
             try:
-                booking.save()
+                form.save()
             except:
-                form.add_error(None, "Changes NOT saved - error occured.")
+                form.add_error(None, "It was not possible to update these booking details to the database.")
             else:
-                path = reverse('dashboard')
-                return HttpResponseRedirect(path)
-            
+                return redirect("view_bookings")
     else:
-        form = BookingForm(instance=booking)
-    return render(request, 'update_booking.html', {'form': form})
+        form = UpdateBookingForm(instance=booking)
+    return render(request, 'update_booking.html', {'booking_id': booking_id, 'form': form})
+
+
 
 # view function for the splitscreen with booking requests and tutors
 def display_all_booking_requests(request):
@@ -532,10 +538,31 @@ def display_all_users(request):
    tutors = Tutor.objects.values('id','username', 'first_name', 'last_name', 'email')
    return render(request, "view_users.html", {"admin" : admin, 'students': students, 'tutors': tutors})
 
-# view function to be able to delete a user
+# view function to be able to delete a user when logged in as an admin
 def delete_user(request, id):
     obj = User.objects.get(id=id)
     obj.delete()
     return redirect('view_users')
+
+# view function to update a user's details when logged in as an admin
+def update_user(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        raise Http404(f"Could not find user with ID {user_id}") 
+    
+    if request.method == "POST":
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            try:
+                form.save()
+            except:
+                form.add_error(None, "It was not possible to update these user details to the database.")
+            else:
+                return redirect("view_users")
+    else:
+        form = UserForm(instance=user)
+    return render(request, 'update_user_details.html', {'user_id': user_id, 'form': form})
+
 
 

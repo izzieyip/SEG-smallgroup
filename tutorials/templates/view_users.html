@@ -26,6 +26,7 @@
         <td>Admin</td>
         <!-- Manage Buttons -->
         <td>
+          <a href="{% url 'update_user' each_admin.id %}" class="btn btn-warning">Edit</a>
           <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ each_admin.id }}">Delete</button>
         </td>
         <!-- Repeating Modal for delete button -->
@@ -64,7 +65,7 @@
       <td>Student</td>
       <!-- Manage Buttons -->
       <td>
-        <a href="" class="btn btn-warning">Edit</a> 
+        <a href="{% url 'update_user' student.id %}" class="btn btn-warning">Edit</a> 
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ student.id }}">Delete</button>
       </td>
       <!-- Repeating Modal for delete button -->
@@ -103,6 +104,7 @@
       <td>Tutor</td>
       <!-- Manage Buttons -->
       <td>
+        <a href="{% url 'update_user' tutor.id %}" class="btn btn-warning">Edit</a>
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ tutor.id }}">Delete</button>
       </td>
       <!-- Repeating Modal for delete button -->
