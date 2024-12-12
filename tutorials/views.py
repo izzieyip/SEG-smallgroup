@@ -212,6 +212,8 @@ class CreateNewAdminView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         admin_user = form.save(commit=False)
         admin_user.save()
+        
+        messages.success(self.request, self.success_message)
         return super().form_valid(form)
 
 class ViewBookingsView(LoginRequiredMixin, ListView):

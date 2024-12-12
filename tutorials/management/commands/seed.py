@@ -101,7 +101,7 @@ class Command(BaseCommand):
             student = Student.objects.get(username=data['username'])  # Get the created student
 
             # long-winded but ensures that the default student will always have lessons to view
-            booking_data = {'student': data['student'], 'subject': "CPP", 'difficulty': 3, 'isConfirmed': False }
+            booking_data = {'student': student, 'subject': "CPP", 'difficulty': 3, 'isConfirmed': False }
             self.try_create_bookingrequests(booking_data)
             booking = Booking_requests.objects.filter(student=student).latest('id')
             tutor = random.choice(Tutor.objects.all())
