@@ -245,18 +245,18 @@ class Command(BaseCommand):
     def generate_bookingrequests(self):
         requestcount = Booking_requests.objects.count()
         while requestcount < self.USER_COUNT:
-            print(f"Seeding student {requestcount}/{self.USER_COUNT}", end='\r')
+            print(f"Seeding booking request {requestcount}/{self.USER_COUNT}", end='\r')
             self.generate_requests()
             requestcount = Booking_requests.objects.count()
 
         #generate confirmed bookings
         bookingcount = Confirmed_booking.objects.count()
         while bookingcount < 1000:
-            print(f"Seeding tutor {bookingcount}/100", end='\r')
+            print(f"Seeding confirmed booking {bookingcount}/100", end='\r')
             self.generate_bookings()
             bookingcount = Confirmed_booking.objects.count()
 
-        print("Booking seeding complete.      ")
+        print("Booking seeding complete.")
 
 
     #BOOKING REQUESTS
@@ -271,7 +271,7 @@ class Command(BaseCommand):
         try:
             self.create_bookingrequests(data)
         except:
-            print("failed")
+            #print("failed")
             pass
 
     def create_bookingrequests(self, data):
@@ -294,7 +294,7 @@ class Command(BaseCommand):
         try:
             self.create_booking(data)
         except:
-            print("failed")
+            #print("failed")
             pass
 
     def create_booking(self, data):
