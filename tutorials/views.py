@@ -620,6 +620,7 @@ def display_all_booking_requests(request, booking_id=None):
 
 
 # view function to display all users in one page
+@login_required
 def display_all_users(request):
    admin = User.objects.values('id','username', 'first_name', 'last_name', 'email').exclude(student__isnull=False).exclude(tutor__isnull=False)
    students = Student.objects.values('id','username', 'first_name', 'last_name', 'email')
