@@ -35,16 +35,14 @@ def dashboard(request):
     # if the user is a tutor user
     if hasattr(current_user, 'tutor'):
         return render(request, 'tutor_dashboard.html', {'user': current_user})
-    # if the user is an admin user
-    else:
-        return render(request, 'dashboard.html', {'user': current_user})
+
+
     
 
 
 @login_prohibited
 def home(request):
     """Display the application's start/home screen."""
-
     return render(request, 'home.html')
 
 
