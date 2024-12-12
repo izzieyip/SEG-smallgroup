@@ -13,9 +13,9 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm
 from tutorials.helpers import login_prohibited
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm, UpdateBookingForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm, UpdateBookingForm, InvoiceForm
 from tutorials.helpers import login_prohibited
-from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User, Invoices
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 
 from django.db.models import Q, F, Sum
@@ -565,4 +565,9 @@ def update_user(request, user_id):
     return render(request, 'update_user_details.html', {'user_id': user_id, 'form': form})
 
 
-
+def CreateInvoice(request):
+    
+    model = Booking_requests
+    form_class = InvoiceForm()
+    template_name = "create_invoice.html"
+    return render(request, template_name,  context = {'form':form_class})

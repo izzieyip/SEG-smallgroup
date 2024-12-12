@@ -3,8 +3,8 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.validators import RegexValidator
-from .models import User, Confirmed_booking, Student, Tutor, Admin
-from .models import Booking_requests, User, Student, Confirmed_booking
+from .models import User, Confirmed_booking, Student, Tutor
+from .models import Booking_requests, User, Student, Confirmed_booking, Invoices
 
 class LogInForm(forms.Form):
     """Form enabling registered users to log in."""
@@ -89,7 +89,7 @@ class PasswordForm(NewPasswordMixin):
         return self.user
 
 
-class SignUpForm(NewPasswordMixin, forms.ModelForm):
+class SignUpForm(forms.ModelForm):
     """Form enabling unregistered users to sign up."""
     userType = forms.ChoiceField(choices=[('S', 'Student'), ('T', 'Tutor')], required=True, label="Type of User")
 
@@ -117,57 +117,30 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
 
     def save(self, commit=True):
         """Create a new user of the selected type."""
-        if self.is_valid():
-            userType = self.cleaned_data.get('userType')
-            if userType == 'T':
-                tutor = Tutor.objects.create_user(
-                    username= self.cleaned_data.get('username'),
-                    first_name=self.cleaned_data.get('first_name'),
-                    last_name=self.cleaned_data.get("last_name"),
-                    email=self.cleaned_data.get('email'),
-                    password=self.cleaned_data.get('new_password'),
-                    skills=self.cleaned_data.get('skills'),
-                    experience_level=self.cleaned_data.get('experience_level'),
-                    available_days=self.cleaned_data.get('available_days'),
-                    available_times=self.cleaned_data.get('available_times')
-                )
-                return tutor
-            elif userType == 'S':
-                student = Student.objects.create_user(
-                    username = self.cleaned_data.get('username'),
-                    first_name=self.cleaned_data.get('first_name'),
-                    last_name=self.cleaned_data.get("last_name"),
-                    email=self.cleaned_data.get('email'),
-                    password=self.cleaned_data.get('new_password'))
-                return student
-
-
-
-class CreateNewAdminForm(forms.ModelForm, NewPasswordMixin):
-    """Form enabling admins to create NEW admins once logged in"""
-    class Meta:
-        model = Admin
-        fields = ['first_name', 'last_name', 'username', 'email']
-
-    def __init__(self, *args, **kwargs):
-        # Retrieve the data passed to the form
-        data = kwargs.get('data', {})
-        super().__init__(*args, **kwargs)
-
-
-    def save(self, commit=True):
-        """Create a new admin user with this data."""
-        if self.is_valid():
-            admin = Admin.objects.create_user(
-                username = self.cleaned_data.get('username'),
-                first_name=self.cleaned_data.get('first_name'),
-                last_name=self.cleaned_data.get('last_name'),
-                email=self.cleaned_data.get('email'),
-                password=self.cleaned_data.get('new_password'),
+        userType = self.cleaned_data['userType']
+        user = User.objects.create_user(
+            self.cleaned_data['username'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            email=self.cleaned_data['email'],
+            password=self.cleaned_data.get('new_password'),
+        )
+        if userType == 'T':
+            tutor = Tutor.objects.create(
+                user=user,
+                skills=self.cleaned_data.get('skills'),
+                experience_level=self.cleaned_data.get('experience_level'),
+                available_days=self.cleaned_data.get('available_days'),
+                available_times=self.cleaned_data.get('available_times'),
             )
-        return admin
+            return tutor
+        elif userType == 'S':
+            student = Student.objects.create(user=user)
+            return student
 
-      
+        return user
+    
+
 class CreateBookingRequest(forms.ModelForm):
     """Form for admin to create new booking requests for a particular student based
     on their username"""
@@ -194,7 +167,6 @@ skills = [
 ]
 
 #we're going to search for a BookingRequest object by student username and subject
-
 class BookingForm(forms.Form):
     #form to create a insert a new booking into the table
     student = forms.CharField(label="Student username", max_length=255)
@@ -203,9 +175,23 @@ class BookingForm(forms.Form):
     time = forms.TimeField(label = "Time")
     tutor = forms.CharField(label="Tutor username", max_length=255)
 
+class InvoiceForm(forms.ModelForm):
 
-class UpdateBookingForm(forms.ModelForm):
-    # a form to aid in the updating of bookings
     class Meta:
-        model = Confirmed_booking
-        fields = ["booking_date", "booking_time", "tutor"]
+
+        model = Invoices
+        fields = ['booking','student', 'amount', 'paid']
+
+    def save(self):
+
+        super().save()
+        student = Student.objects.get(username = self.cleaned_data.get('username'))
+        booking = Confirmed_booking.objects.get(id = self.cleaned_data.get('id'))
+        amount = self.cleaned_data.get('amount')
+        paid = self.cleaned_data.get('paid')
+        invoice = Invoices.objects.create(booking = booking, student = student, amount = amount, paid=paid)
+        return invoice
+    
+
+
+
