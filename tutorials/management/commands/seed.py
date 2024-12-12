@@ -3,6 +3,7 @@ from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_b
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import timedelta
 
 import pytz
 from faker import Faker
@@ -237,7 +238,7 @@ class Command(BaseCommand):
 
         #generate confirmed bookings
         bookingcount = Confirmed_booking.objects.count()
-        while bookingcount < 100:
+        while bookingcount < 1000:
             print(f"Seeding tutor {bookingcount}/100", end='\r')
             self.generate_bookings()
             bookingcount = Confirmed_booking.objects.count()
@@ -284,11 +285,32 @@ class Command(BaseCommand):
             pass
 
     def create_booking(self, data):
-        Confirmed_booking.objects.create(
-            booking=data['booking'],
-            tutor=data['tutor'],
-            booking_date=data['booking_date'],
-            booking_time=data['booking_time']
+        booking_request = data['booking']
+        tutor = data['tutor']
+        start_date = data['booking_date']
+        booking_time = data['booking_time']
+
+        # Create 10 weekly bookings starting from the selected date
+        objects = []
+        for i in range(10):
+            booking_date = start_date + timedelta(weeks=i)
+            obj = Confirmed_booking(
+                booking=booking_request,
+                tutor=tutor,
+                booking_date=booking_date,
+                booking_time=booking_time
+            )
+            objects.append(obj)
+
+        # Bulk create the bookings
+        Confirmed_booking.objects.bulk_create(objects)
+
+        Invoices.objects.create(
+                booking=booking_request,
+                student=booking_request.student,
+                amount=200,  # Replace with the desired logic for the amount
+                year=booking_date.year,
+                paid=False
         )
 
         # when a confirmed booking is created, automatically create an invoice

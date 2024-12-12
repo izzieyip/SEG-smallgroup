@@ -4,7 +4,6 @@ from .models import Confirmed_booking, Invoices
 import random
 import datetime
 
-@receiver(post_save, sender=Confirmed_booking)
 def create_invoice_on_booking(sender, instance, created, **kwargs):
     # this method gets called when a confirmed booking is created
 
