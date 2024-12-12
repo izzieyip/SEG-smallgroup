@@ -14,7 +14,7 @@ class BookingViewTestCase(TestCase):
         #Setup admin login
         self.url = reverse('my_payments') + "?sortby=year"
 
-        #Generate sample data for Student and Tutor
+        #Generate sample data for Students
         self.student = Student.objects.create(
             username = "@Jamesstudent",
             first_name="James", 
@@ -27,14 +27,6 @@ class BookingViewTestCase(TestCase):
             first_name="Steph", 
             last_name="Student", 
             email="Stephstudent@example.com", 
-        )
-        self.tutor = Tutor.objects.create(
-            username = "@professordoe",
-            first_name="Professor", 
-            last_name="Doe",
-            email="profdoe@example.com", 
-            skills="DJ",
-            experience_level="3"
         )
 
         #Generate 3 sample Booking Requests to test sorting and invalid entries
@@ -57,45 +49,23 @@ class BookingViewTestCase(TestCase):
             isConfirmed=True
         )
 
-        #Generate sample Confirmed Bookings
-        self.confirmed_booking1 = Confirmed_booking.objects.create(
-            booking=self.booking_request1,
-            tutor=self.tutor,
-            booking_date=date(2021, 12, 25),
-            booking_time=time(11, 30)
-        )
-        self.confirmed_booking2 = Confirmed_booking.objects.create(
-            booking=self.booking_request2,
-            tutor=self.tutor,
-            booking_date=date(2022, 12, 26),
-            booking_time=time(10, 30)
-        )
-        self.confirmed_booking3 = Confirmed_booking.objects.create(
-            booking=self.booking_request3,
-            tutor=self.tutor,
-            booking_date=date(2023, 12, 27),
-            booking_time=time(10, 31)
-        )
-
-        Invoices.objects.all().delete()
-
         #Generate invoices for both 
         self.invoice1 = Invoices.objects.create(
-            booking=self.confirmed_booking1,
+            booking=self.booking_request1,
             student=self.student,
             year=2021,
             amount=500,
             paid=False,
         )
         self.invoice2 = Invoices.objects.create(
-            booking=self.confirmed_booking2,
+            booking=self.booking_request2,
             student=self.student,
             year=2022,
             amount=200,
             paid=False,
         )
         self.invoice3 = Invoices.objects.create(
-            booking=self.confirmed_booking3,
+            booking=self.booking_request3,
             student=self.otherstudent,
             year=2023,
             amount=100,
