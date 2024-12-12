@@ -1,4 +1,4 @@
-"""Tests of the home view."""
+"""Tests of the view bookings view."""
 from django.test import TestCase
 from django.urls import reverse
 from datetime import date, time
@@ -96,14 +96,14 @@ class BookingViewTestCase(TestCase):
 
     def test_default_sorting(self):
         self.client.login(username=self.user.username, password='Password123')
-        response = self.client.get(reverse('view_bookings'), {'sortby':'date'}) #booking 2 shoudl come before 1
+        response = self.client.get(reverse('view_bookings'), {'sortby':'date'}) #booking 1 should come before 2
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'DJ') #order matters
         self.assertContains(response, 'PY')
 
     def test_custom_sorting(self):
         self.client.login(username=self.user.username, password='Password123')
-        response = self.client.get(reverse('view_bookings'), {'sortby':'time'}) #booking 2 shoudl come before 1
+        response = self.client.get(reverse('view_bookings'), {'sortby':'time'}) #booking 2 should come before 1
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'PY') #order matters
         self.assertContains(response, 'DJ')
