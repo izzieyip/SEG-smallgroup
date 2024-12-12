@@ -18,7 +18,8 @@ class BookingRequestsTestCase(TestCase):
 
         self.booking2 = Booking_requests.objects.create(
             student=self.student,
-            subject="JAVA",  # Another valid choice in Skills
+            subject="JAVA",  
+
             isConfirmed=True,
             difficulty=2,
         )
@@ -27,8 +28,11 @@ class BookingRequestsTestCase(TestCase):
         # Test that booking requests are created correctly
         self.assertEqual(Booking_requests.objects.count(), 2)
         self.assertEqual(self.booking1.student.first_name, "John")
-        self.assertEqual(self.booking1.subject, "CPP")
+        self.assertEqual(self.booking1.subject, "MAT")
         self.assertFalse(self.booking1.isConfirmed)
+        self.assertEqual(self.booking2.student.first_name, "John")
+        self.assertEqual(self.booking2.subject, "SCI")
+        self.assertTrue(self.booking2.isConfirmed)
 
     def test_unique_together_constraint(self):
         # Test that duplicate (student, subject) combinations are not allowed
@@ -41,7 +45,7 @@ class BookingRequestsTestCase(TestCase):
 
     def test_str_method(self):
         # Test the string representation of a booking request
-        expected_str = f"Booking Pending for: {self.student} wants to learn {self.booking1.subject} at difficulty level {self.booking1.difficulty}."
+        expected_str = f"Booking Pending for: {self.booking1.student} wants to learn {self.booking1.subject} at difficulty level {self.booking1.difficulty}."
         self.assertEqual(str(self.booking1), expected_str)
 
 

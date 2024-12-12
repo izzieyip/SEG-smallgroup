@@ -9,7 +9,7 @@ class BookingRequestsTestCase(TestCase):
         self.student = Student.objects.create(first_name="John", last_name = "Doe", username="@johndoe", email="johndoe@example.com")
 
         self.booking_request = Booking_requests.objects.create(
-            student_id=self.student,
+            student_id=self.student.id,
             subject="CPP",
             difficulty=3,
             isConfirmed=False
