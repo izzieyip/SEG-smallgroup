@@ -172,16 +172,11 @@ class CreateBookingRequest(forms.ModelForm):
     """Form for a student to create a new booking request"""
 
     class Meta:
-
         model = Booking_requests
-        fields = ['student','subject', 'difficulty']
+        fields = ['subject', 'difficulty']
 
-    def save(self):
-        """Create a new booking request"""
-        super().save()
-        student1 = Student.objects.filter(username = self.cleaned_data.get('username')).latest('id')
-        booking = Booking_requests.objects.create(student = student1, subject = self.cleaned_data.get("subject"), difficulty = self.cleaned_data.get("difficulty"))
-        return booking
+
+
 
 skills = [
     ("CPP", "C++"),

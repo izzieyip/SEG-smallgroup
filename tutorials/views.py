@@ -11,9 +11,9 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from django.urls import reverse_lazy
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm
+from tutorials.forms import CreateBookingRequest, LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm
 from tutorials.helpers import login_prohibited
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm, UpdateBookingForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, UpdateBookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -469,30 +469,30 @@ def create_multiple_objects(request):
 
 
 # displaying the form to create a new booking request
-def CreatingBookingRequest(request):
-    try:
-        user = User.objects.get(id=request.user.id)
-    except User.DoesNotExist:
-        raise Http404(f"Could not find user with ID {user.id}") 
-    
-    if request.method == "POST":
-        form = CreateBookingRequest(request.POST, student=user)
+@login_required
+def creatingBookingRequest(request):
+    if request.method == 'POST':
+        form = CreateBookingRequest(request.POST)
+        print("DEBUG: Form is bound:", form.is_bound)
         if form.is_valid():
-            try:
-                form.save()
-            except:
-                form.add_error(None, "It was not possible to update these booking details to the database.")
+            instance = form.save(commit=False)
+            if request.user.is_authenticated:
+                student = Student.objects.get(username=request.user.username)
+                instance.student = student
+                instance.save()
             else:
-                return redirect("view_bookings")
+                print("no user logged in")
+            print("DEBUG: Form is valid")
+            form.save()
+            return redirect("dashboard")
+        else:
+            print("DEBUG: Form errors:", form.errors)
     else:
-        form = CreateBookingRequest(student=user)
-    return render(request, 'create_booking_requests.html', {'form': form})
+        form = CreateBookingRequest()
 
-    model = Booking_requests
-    form_class = CreateBookingRequest()
     template_name = "create_booking_requests.html"
-    return render(request, template_name,  context = {'form':form_class})
-
+    return render(request, template_name, context={'form': form})
+    
 
 def createBooking(request):
     if request.method == "POST":
