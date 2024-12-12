@@ -63,28 +63,30 @@ class BookingViewTestCase(TestCase):
         self.confirmed_booking1 = Confirmed_booking.objects.create(
             booking=self.booking_request1,
             tutor=self.tutor,
-            booking_date=date(2024, 12, 25),
+            booking_date=date(2022, 12, 25),
             booking_time=time(11, 30)
         )
         self.confirmed_booking2 = Confirmed_booking.objects.create(
             booking=self.booking_request2,
             tutor=self.tutor,
-            booking_date=date(2024, 12, 26),
+            booking_date=date(2023, 12, 26),
             booking_time=time(10, 30)
         )
+
+        Invoices.objects.all().delete()
 
         #Generate invoices for both 
         self.invoice1 = Invoices.objects.create(
             booking=self.confirmed_booking1,
             student=self.student1,
-            year=2024,
+            year=2022,
             amount=500,
             paid=False,
         )
         self.invoice2 = Invoices.objects.create(
             booking=self.confirmed_booking2,
             student=self.student2,
-            year=2025,
+            year=2023,
             amount=100,
             paid=False,
         )
@@ -117,15 +119,15 @@ class BookingViewTestCase(TestCase):
         self.client.login(username=self.user.username, password='Password123')
         response = self.client.get(reverse('invoices'), {'showpaid':'false', 'sortby':'year'}) #booking 1 should come before 2
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '2024') #order matters
-        self.assertContains(response, '2025')
+        self.assertContains(response, '2022') #order matters
+        self.assertContains(response, '2023')
 
     def test_custom_sorting(self):
         self.client.login(username=self.user.username, password='Password123')
         response = self.client.get(reverse('invoices'), {'showpaid':'false', 'sortby':'amount'}) #booking 2 should come before 1
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '100') #order matters
-        self.assertContains(response, '500')
+        self.assertContains(response, '2023') #order matters
+        self.assertContains(response, '2022')
 
     def test_mark_as_paid(self):
         self.client.login(username=self.user.username, password='Password123')
@@ -136,7 +138,7 @@ class BookingViewTestCase(TestCase):
         response = self.client.get(reverse('invoices'), {'showpaid':'false', 'sortby':'year'})
         self.invoice1.refresh_from_db() #need to refresh invoice stuff
         self.assertEqual(self.invoice1.paid, True) #should be marked as true
-        self.assertNotContains(response, '500') #this invoice should no longer appear'''
+        self.assertNotContains(response, '2022') #this invoice should no longer appear
 
     def test_mark_as_unpaid(self):
         self.client.login(username=self.user.username, password='Password123')
@@ -147,4 +149,4 @@ class BookingViewTestCase(TestCase):
         response = self.client.get(reverse('invoices'), {'showpaid':'false', 'sortby':'year'})
         self.invoice1.refresh_from_db() #need to refresh invoice stuff
         self.assertEqual(self.invoice1.paid, False) #should be marked as true
-        self.assertContains(response, '500') #this invoice should no longer appear'''
+        self.assertContains(response, '2022') #this invoice should no longer appear
