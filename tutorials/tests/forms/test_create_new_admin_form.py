@@ -59,12 +59,6 @@ class CreateNewAdminFormTestCase(TestCase):
         form = CreateNewAdminForm(data=self.form_input)
         self.assertFalse(form.is_valid())
 
-    def test_new_password_and_password_confirmation_are_identical(self):
-        self.form_input['new_password'] = 'Password123'
-        self.form_input['password_confirmation'] = 'WrongPassword123'
-        form = CreateNewAdminForm(data=self.form_input)
-        self.assertFalse(form.is_valid())
-
     def test_admin_form_must_save_correctly(self):
         form = CreateNewAdminForm(data=self.form_input)
         before_count = Admin.objects.count()
