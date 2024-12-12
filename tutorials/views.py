@@ -11,9 +11,9 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from django.urls import reverse_lazy
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm, ConfirmedBookingForm
+from tutorials.forms import CreateBookingRequest, LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm, ConfirmedBookingForm
 from tutorials.helpers import login_prohibited
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm, UpdateBookingForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, UpdateBookingForm
 from tutorials.helpers import login_prohibited
 
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
@@ -500,13 +500,30 @@ def create_multiple_objects(request):
 
 
 # displaying the form to create a new booking request
-def CreatingBookingRequest(request):
-    
-    model = Booking_requests
-    form_class = CreateBookingRequest()
-    template_name = "create_booking_requests.html"
-    return render(request, template_name,  context = {'form':form_class})
+@login_required
+def creatingBookingRequest(request):
+    if request.method == 'POST':
+        form = CreateBookingRequest(request.POST)
+        print("DEBUG: Form is bound:", form.is_bound)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            if request.user.is_authenticated:
+                student = Student.objects.get(username=request.user.username)
+                instance.student = student
+                instance.save()
+            else:
+                print("no user logged in")
+            print("DEBUG: Form is valid")
+            form.save()
+            return redirect("dashboard")
+        else:
+            print("DEBUG: Form errors:", form.errors)
+    else:
+        form = CreateBookingRequest()
 
+    template_name = "create_booking_requests.html"
+    return render(request, template_name, context={'form': form})
+    
 
 def createBooking(request):
     if request.method == "POST":
