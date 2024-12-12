@@ -325,9 +325,9 @@ class Command(BaseCommand):
                 year=booking_date.year,
                 paid=False
         )
-
-        # when a confirmed booking is created, automatically create an invoice
-        # a signal is sent to the receiver in signals.py
+        
+        booking_request.isConfirmed = True
+        booking_request.save()
 
 # Helper functions
 def create_username(first_name, last_name):
