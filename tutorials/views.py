@@ -508,7 +508,7 @@ def create_multiple_objects(request):
     else:
         form = ConfirmedBookingForm()
 
-    return render(request, 'splitscreen.html', {'form': form})
+    return render(request, 'view_requests.html', {'form': form})
 
 
 
