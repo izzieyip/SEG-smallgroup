@@ -6,6 +6,23 @@
     <div class="col-8">
       <h1>All outstanding invoices.</h1>
     </div>
+    {% if request.GET.showpaid == 'false' %}
+      <div class="col-4 d-grid gap-2 d-md-flex justify-content-md-end">
+        <button type="button" class="btn btn-outline-info btn-lg">
+          <a href="?showpaid=true&sortby={{ request.GET.sortby }}{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="button">
+            Show Paid invoices.
+          </a>
+        </button>
+      </div>
+    {% else %}
+      <div class="col-4 d-grid gap-2 d-md-flex justify-content-md-end">
+        <button type="button" class="btn btn-outline-info btn-lg">
+          <a href="?showpaid=false&sortby={{ request.GET.sortby }}{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="button">
+            Hide Paid invoices.
+          </a>
+        </button>
+      </div>
+    {% endif %}
   </div>
   <div class="row">
     <div class="col-3">
@@ -31,37 +48,34 @@
   <table class="table table-striped">
     <tr>
       <!-- Horrible long commands to maintain the sort when a filter is applied :( -->
-      <th><a href="?sortby=student{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Student</a></th> <!-- Sort links -->
-      <th><a href="?sortby=year{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Year</a></th>
-      <th><a href="?sortby=amount{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Amount</a></th>
+      <th><a href="?showpaid={{ request.GET.showpaid }}sortby=student{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Student</a></th> <!-- Sort links -->
+      <th><a href="?showpaid={{ request.GET.showpaid }}sortby=year{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Year</a></th>
+      <th><a href="?showpaid={{ request.GET.showpaid }}sortby=amount{% if request.GET.filterby %}&filterby={{ request.GET.filterby }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Amount</a></th>
       <th>Manage</th>
     </tr>
 
     <!--Display each entry of Invoices in table format-->
-    <!-- START TEMP -->
-    <tr>
-      <td>noah</td>
-      <td>2024</td>
-      <td>1000000</td>
-      <td>
-        <!-- Form button to call mark_as_paid urlpath -->
-          <button type="submit" class="btn btn-warning">Mark as Paid.</button>
-      </td>
-    </tr>
-    <!-- END TEMP -->
     {% for invoice in invoiceData%}
-      {% if invoice.paid == False %} <!-- Only display outstanding invoices, meaning paid != True -->
+      {% if invoice.paid == False or request.GET.showpaid == 'true'%} <!-- Only display outstanding invoices if specified, meaning paid != True -->
         <!--Display each entry of Invoices in table format-->
         <tr>
           <td>{{invoice.student.full_name}}</td>
           <td>{{invoice.year}}</td>
           <td>{{invoice.amount}}</td>
           <td>
-            <!-- Form button to call mark_as_paid urlpath -->
-            <form action="{% url 'pay_invoice' invoice.id %}" method="post" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-warning">Mark as Paid.</button>
-            </form>
+            {% if invoice.paid == False %} <!-- If invoice hasn't been paid -->
+              <!-- Form button to call mark_as_paid urlpath -->
+              <form action="{% url 'pay_invoice' invoice.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">Mark as Paid.</button>
+              </form>
+            {% else %}
+              <!-- Form button to call mark_as_unpaid urlpath -->
+              <form action="{% url 'unpay_invoice' invoice.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Mark as Not Paid.</button>
+              </form>
+            {% endif %}
           </td>
         </tr>
       {% endif %}
