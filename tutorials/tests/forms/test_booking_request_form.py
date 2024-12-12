@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from .models import Student, Tutor, Booking_requests, Confirmed_booking
+from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
 
 class BookingRequestsModelTest(TestCase):
     def setUp(self):
@@ -115,5 +115,5 @@ class ConfirmedBookingModelTest(TestCase):
         """Test the string representation of Confirmed_booking."""
         self.assertEqual(
             str(self.confirmed_booking),
-            f"Booking: {self.booking_request.student.full_name()} with {self.tutor.full_name()} on 2024-01-01 at 10:00:00, learning {self.booking_request.subject}."
+            f"Booking: {self.booking_request.student.full_name} with {self.tutor.full_name} on {self.confirmed_booking.booking_date} at {self.confirmed_booking.booking_time}, learning {self.confirmed_booking.booking.subject}."
         )

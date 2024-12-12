@@ -191,7 +191,10 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        self.object = form.save()
+        if (form.cleaned_data('new_password') != form.cleaned_data('password_confirmation')):
+            self.object = form.save()
+        else:
+            form.add_error(None, "Passwords don't match")
         login(self.request, self.object)
         return super().form_valid(form)
 

@@ -69,7 +69,7 @@ class TutorModelTestCase(TestCase):
     def test_tutor_str_method(self):
         # checking if the __str__ method works
         expected_str = f'{self.username} knows {self.skillsList[self.skills]} with an experience level of {self.experience_level} and is available on {self.days[self.available_day]} {self.times[self.available_time]}'
-        self.assertEquals(str(self.tutor), expected_str)
+        self.assertEqual(str(self.tutor), expected_str)
 
     def test_skills_is_in_list(self):
         # testing when skill is in the list of skills
