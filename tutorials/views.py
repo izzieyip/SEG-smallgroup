@@ -11,17 +11,10 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from django.urls import reverse_lazy
-from tutorials.forms import CreateBookingRequest, LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm, ConfirmedBookingForm
+from tutorials.forms import *
 from tutorials.helpers import login_prohibited
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, UpdateBookingForm
-from tutorials.helpers import login_prohibited
-
-from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
-from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
-from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-
 from django.db.models import Q, F, Sum
 from tutorials.models import *
 from datetime import timedelta
@@ -431,7 +424,7 @@ class ViewMyPayments(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs): #override to pass the sum of outstanding payments
         context = super().get_context_data(**kwargs) 
         current_username = self.request.user.username 
-        total_payments = self.model.objects.filter(student__username=current_username).aggregate(Sum('amount'))['amount__sum'] 
+        total_payments = self.model.objects.filter(student__username=current_username, paid=False).aggregate(Sum('amount'))['amount__sum'] 
         context['total_payments'] = total_payments 
         return context
 
