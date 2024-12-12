@@ -470,7 +470,24 @@ def create_multiple_objects(request):
 
 # displaying the form to create a new booking request
 def CreatingBookingRequest(request):
+    try:
+        user = User.objects.get(id=request.user.id)
+    except User.DoesNotExist:
+        raise Http404(f"Could not find user with ID {user.id}") 
     
+    if request.method == "POST":
+        form = CreateBookingRequest(request.POST, student=user)
+        if form.is_valid():
+            try:
+                form.save()
+            except:
+                form.add_error(None, "It was not possible to update these booking details to the database.")
+            else:
+                return redirect("view_bookings")
+    else:
+        form = CreateBookingRequest(student=user)
+    return render(request, 'create_booking_requests.html', {'form': form})
+
     model = Booking_requests
     form_class = CreateBookingRequest()
     template_name = "create_booking_requests.html"
