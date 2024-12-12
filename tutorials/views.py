@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.urls import reverse_lazy
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm
 from tutorials.helpers import login_prohibited
-from django.db.models import Q, F
+from django.db.models import Q, F, Sum
 from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import *
@@ -385,6 +385,36 @@ class ViewInvoicesView(LoginRequiredMixin, ListView):
             return redirect(request.path + '?sortby=year')
         
         return super().get(request, *args, **kwargs)
+    
+class ViewMyPayments(LoginRequiredMixin, ListView):
+    """Display the user's associated invoices as a table."""
+    
+    model = Invoices
+    template_name = 'my_payments.html'
+    context_object_name = 'invoiceData'
+
+    def get_queryset(self): #override to include sorting / filtering functionality
+        queryset = super().get_queryset() #unsorted query
+        sortby = self.request.GET.get('sortby', 'year') #obtain sort through url (default to year)
+
+        #maps table headers to the respective model data
+        keymap = {
+            'year' : 'year',
+            'amount' : 'amount',
+        }
+
+        #filter only bookings related to current student
+        current_username = self.request.user.username #obtain logged in username
+        queryset = queryset.filter(student__username=current_username) 
+
+        return queryset.order_by(keymap.get(sortby, 'year'))
+    
+    def get_context_data(self, **kwargs): #override to pass the sum of outstanding payments
+        context = super().get_context_data(**kwargs) 
+        current_username = self.request.user.username 
+        total_payments = self.model.objects.filter(student__username=current_username).aggregate(Sum('amount'))['amount__sum'] 
+        context['total_payments'] = total_payments 
+        return context
 
 #task 5 booking searching
 #this function is to be assinged to the search button and takes the input of the search bar
