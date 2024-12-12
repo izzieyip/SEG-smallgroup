@@ -1,6 +1,7 @@
 
 {% extends 'base_content.html' %}
 {% block content %}
+
 <div class="container">
   <div class="dashboard-container">
         <p class="custom-header">
@@ -62,7 +63,7 @@
         <div class="card-body">
           <h5 class="card-title">Manage all Users</h5>
           <p class="card-text">Click here to see all users and make changes</p>
-          <a href="#" class="btn btn-outline-warning w-100">Edit / View a User</a>
+          <a href="{% url 'view_users' %}" class="btn btn-outline-warning w-100">Edit / View a User</a>
         </div>
       </div>
       </div>
