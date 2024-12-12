@@ -383,13 +383,22 @@ class ViewInvoicesView(LoginRequiredMixin, ListView):
     def mark_as_paid(request, id):
         # sets 'paid' to true for a specific entry
         obj = Invoices.objects.get(id=id)
-        obj.paid == True
+        obj.paid = True
         obj.save() # commit change to db
+
+        return redirect('invoices') #refresh
+    
+    def mark_as_unpaid(request, id):
+        # sets 'paid' to false for a specific entry
+        obj = Invoices.objects.get(id=id)
+        obj.paid = False
+        obj.save() # commit change to db
+        
         return redirect('invoices') #refresh
     
     def get(self, request, *args, **kwargs): #override to ensure forced sort
-        if 'sortby' not in request.GET:
-            return redirect(request.path + '?sortby=year')
+        if 'showpaid' not in request.GET or 'sortby' not in request.GET:
+            return redirect(request.path + '?showpaid=false&sortby=year')
         
         return super().get(request, *args, **kwargs)
     
