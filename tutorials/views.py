@@ -522,7 +522,7 @@ def create_multiple_objects(request):
 
 # displaying the form to create a new booking request on the student dashboard
 @login_required
-def creatingBookingRequest(request):
+def CreatingBookingRequest(request):
     if request.method == 'POST':
         form = CreateBookingRequest(request.POST)
         print("DEBUG: Form is bound:", form.is_bound)

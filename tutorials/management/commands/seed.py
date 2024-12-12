@@ -8,7 +8,7 @@ from datetime import timedelta
 import pytz
 from faker import Faker
 import random
-import datetime
+from datetime import timedelta
 
 # default users for each type for testing
 # @student, @tutor, @admin all default password: Password123
