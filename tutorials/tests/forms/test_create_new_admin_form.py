@@ -75,5 +75,5 @@ class CreateNewAdminFormTestCase(TestCase):
         self.assertEqual(admin.first_name, 'Ammu')
         self.assertEqual(admin.last_name, 'Bean')
         self.assertEqual(admin.email, 'ammubean@gmail.com')
-        is_password_correct = check_password('Password123', admin.new_password)
+        is_password_correct = check_password('Password123', admin.password)
         self.assertTrue(is_password_correct)
