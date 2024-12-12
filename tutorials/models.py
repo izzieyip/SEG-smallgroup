@@ -143,7 +143,7 @@ class Confirmed_booking(models.Model):
 
 
 class Invoices(models.Model):
-    booking = models.ForeignKey(Confirmed_booking, on_delete=models.CASCADE, related_name="invoices", default=1)
+    booking = models.ForeignKey(Booking_requests, on_delete=models.CASCADE, related_name="invoices", default=1)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     year = models.IntegerField(default=datetime.date.today().year)
     amount = models.IntegerField(default=0)

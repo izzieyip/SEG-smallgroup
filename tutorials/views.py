@@ -24,7 +24,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 
 from django.db.models import Q, F, Sum
 from tutorials.models import *
-
+from datetime import timedelta
 
 
 @login_required
@@ -464,7 +464,7 @@ def search_confirmed_requests(query):
 
 #"MyForm" palceholder for the create a confirmed booking form
 #i changed ^ to booking form - izzy
-from datetime import timedelta
+
 
 def create_multiple_objects(request):
     if request.method == 'POST':
@@ -493,6 +493,14 @@ def create_multiple_objects(request):
 
                 # Bulk create the bookings
                 Confirmed_booking.objects.bulk_create(objects)
+
+                Invoices.objects.create(
+                        booking=booking_request,
+                        student=booking_request.student,
+                        amount=200,  # Replace with the desired logic for the amount
+                        year=booking_date.year,
+                        paid=False
+                )
 
                 # Mark the booking request as confirmed
                 booking_request.isConfirmed = True
