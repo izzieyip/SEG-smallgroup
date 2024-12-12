@@ -169,22 +169,14 @@ class CreateNewAdminForm(forms.ModelForm, NewPasswordMixin):
 
       
 class CreateBookingRequest(forms.ModelForm):
-    """Form for admin to create new booking requests for a particular student based
-    on their username"""
+    """Form for a student to create a new booking request"""
 
     class Meta:
-
         model = Booking_requests
-        fields = ['student','subject', 'difficulty']
+        fields = ['subject', 'difficulty']
 
 
-    def save(self):
-        """Create a new booking request"""
 
-        super().save()
-        student1 = Student.objects.get(username = self.cleaned_data.get('username'))
-        booking = Booking_requests.objects.create(student = student1, subject = self.cleaned_data.get("subject"), difficulty = self.cleaned_data.get("difficulty"))
-        return booking
 
 skills = [
     ("CPP", "C++"),
@@ -193,7 +185,6 @@ skills = [
     ("DJ", "DJANGO")
 ]
 
-#we're going to search for a BookingRequest object by student username and subject
 
 class BookingForm(forms.Form):
     #form to create a insert a new booking into the table
@@ -204,8 +195,33 @@ class BookingForm(forms.Form):
     tutor = forms.CharField(label="Tutor username", max_length=255)
 
 
+class ConfirmedBookingForm(forms.ModelForm):
+    class Meta:
+        model = Confirmed_booking
+        fields = ['booking', 'tutor', 'booking_date', 'booking_time']
+        widgets = {
+            'booking_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'booking_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'booking': forms.Select(attrs={'class': 'form-select'}),
+            'tutor': forms.Select(attrs={'class': 'form-select'}),
+        }
+        labels = {
+            'booking': 'Booking Request',
+            'tutor': 'Tutor',
+            'booking_date': 'Date',
+            'booking_time': 'Time',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Restrict booking choices to only unconfirmed bookings
+        self.fields['booking'].queryset = Booking_requests.objects.filter(isConfirmed=False)
+
+
+
 class UpdateBookingForm(forms.ModelForm):
     # a form to aid in the updating of bookings
     class Meta:
         model = Confirmed_booking
         fields = ["booking_date", "booking_time", "tutor"]
+

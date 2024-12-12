@@ -29,7 +29,7 @@ def create_invoice_on_booking(sender, instance, created, **kwargs):
         )
 
         # this is for debugging
-        print(f"Invoice created for {student.username} with amount: {amount}")
+        #print(f"Invoice created for {student.username} with amount: {amount}")
 
     else:
         print(f"Invoice creation failed")
