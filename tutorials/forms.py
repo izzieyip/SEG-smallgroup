@@ -223,3 +223,5 @@ class ConfirmedBookingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Restrict booking choices to only unconfirmed bookings
         self.fields['booking'].queryset = Booking_requests.objects.filter(isConfirmed=False)
+
+

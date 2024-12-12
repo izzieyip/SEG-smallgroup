@@ -3,8 +3,9 @@
 <div class="container">
     <div class="row">
         <!-- First Column -->
-        <div class="col-md-6" id="booking-column">
+        <div class="col-md-8" id="booking-column">
             {% if selected_booking %}
+            <a href="{% url 'view_requests' %}" class="btn btn-secondary mt-3">Back to requests</a>
                 <h3>Booking Details</h3>
                     <li class="list-group-item">
                     <strong>Request ID:</strong> {{ selected_booking.id }}
@@ -14,14 +15,14 @@
                     <strong>Skill:</strong> {{ selected_booking.get_subject_display }}
                     <strong>Difficulty Level:</strong> {{ selected_booking.get_difficulty_display }}
                 </li>
+                <br>
                 <div>
-                    <form method="POST">
+                    <form method="POST" action="{% url 'create_multiple_objects' %}">
                         {% csrf_token %}
                         {{ form.as_p }}
                         <button type="submit" class="btn btn-primary">Confirm</button>
                     </form>
-                 </div>
-                <a href="{% url 'view_requests' %}" class="btn btn-secondary mt-3">Back to requests</a>
+                </div>
             {% else %}
                 <h3>Booking Requests</h3>
                 <div style="max-height: 500px; overflow-y: auto;" id="booking-list">
@@ -43,7 +44,7 @@
         </div>
 
         <!-- Second Column -->
-        <div class="col-md-6">
+        <div class="col-md-4">
             <h3>Tutors</h3>
             <div style="max-height: 500px; overflow-y: auto;">
                 <ul class="list-group" id="tutor-list">

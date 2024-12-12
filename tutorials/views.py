@@ -248,24 +248,52 @@ def search_confirmed_requests(query):
 
 #"MyForm" palceholder for the create a confirmed booking form
 #i changed ^ to booking form - izzy
+from datetime import timedelta
+
 def create_multiple_objects(request):
     if request.method == 'POST':
-        form = BookingForm(request.POST)
+        form = ConfirmedBookingForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            #can add to the form if we want them to have ana option fo how many bookings they want
-            #number_of_objects = int(request.POST.get('number_of_objects', 1))  # Get the number from the request
-            objects = []
-            #number of bookings can be changed set to 10 for a term
-            for i in range(10):
-                obj = Confirmed_booking(tutor=data['tutorid'],booking_date=[i*7+form.date])#fill according to form make it work
-                objects.append(obj)
-            Confirmed_booking.objects.bulk_create(objects)
-            return redirect('view_bookings.url')#repalce with correct url if wrong?
+
+            try:
+                # Extract details from the form
+                booking_request = data['booking']
+                tutor = data['tutor']
+                start_date = data['booking_date']
+                booking_time = data['booking_time']
+
+                # Create 10 weekly bookings starting from the selected date
+                objects = []
+                for i in range(10):
+                    booking_date = start_date + timedelta(weeks=i)
+                    obj = Confirmed_booking(
+                        booking=booking_request,
+                        tutor=tutor,
+                        booking_date=booking_date,
+                        booking_time=booking_time
+                    )
+                    objects.append(obj)
+
+                # Bulk create the bookings
+                Confirmed_booking.objects.bulk_create(objects)
+
+                # Mark the booking request as confirmed
+                booking_request.isConfirmed = True
+                booking_request.save()
+
+                # Redirect to the view bookings page with a success message
+                messages.success(request, "10 weekly bookings created successfully")
+                return redirect('view_requests')
+            except Exception as e:
+                messages.error(request, f"Error creating bookings: {e}")
+        else:
+            messages.error(request, "Invalid form submission.")
     else:
-        form = BookingForm()
-    #replace splitscreen.html with actual name
+        form = ConfirmedBookingForm()
+
     return render(request, 'splitscreen.html', {'form': form})
+
 
 
 # displaying the form to create a new booking request
