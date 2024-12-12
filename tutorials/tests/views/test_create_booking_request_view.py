@@ -1,4 +1,4 @@
-'''Tests of the create_booking_request view'''
+'''Tests of the create_booking_requests view'''
 from django.test import TestCase
 from django.urls import reverse
 from tutorials.forms import Booking_requests
@@ -10,7 +10,7 @@ class createBookingRequestViewTestCase(TestCase):
     #fixtures = ['tutorials/tests/fixtures/default_user.json']
 
     def setUp(self):
-        self.url = reverse('create_booking_request')
+        self.url = reverse('create_booking_requests')
         self.user = Student.objects.create(
             username = "@johndoe",
             first_name="John", 
@@ -24,7 +24,7 @@ class createBookingRequestViewTestCase(TestCase):
         }
 
     def test_booking_request_url(self):
-        self.assertEqual(self.url, '/create_booking_request/')
+        self.assertEqual(self.url, '/dashboard/create_booking_requests/')
 
     def test_get_booking_request(self):
         self.client.login(username=self.user.username, password='Password123')
