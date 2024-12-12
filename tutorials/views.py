@@ -512,7 +512,7 @@ def create_multiple_objects(request):
 
 
 
-# displaying the form to create a new booking request
+# displaying the form to create a new booking request on the student dashboard
 @login_required
 def creatingBookingRequest(request):
     if request.method == 'POST':
@@ -564,7 +564,7 @@ def createBooking(request):
         form = BookingForm()
     return render(request, 'create_booking.html', {'form': form})
 
-
+# view function to edit the details of an already existing booking
 def updateBooking(request, booking_id):
     try:
         booking = Confirmed_booking.objects.get(id=booking_id)
