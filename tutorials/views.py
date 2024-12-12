@@ -221,7 +221,7 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
     template_name = 'view_bookings.html'
     context_object_name = 'bookingData'
 
-    def get_queryset(self): #override to include sorting functionality
+    def get_queryset(self): #override to include sorting / filtering functionality
         '''SORTING'''
         queryset = super().get_queryset() #unsorted query
         sortby = self.request.GET.get('sortby', 'booking_date') #obtain sort through url (default to booking_date)
@@ -278,15 +278,67 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
             return redirect(request.path + '?sortby=date')
         
         return super().get(request, *args, **kwargs)
+    
+class ViewMyBookings(LoginRequiredMixin, ListView):
+    """Display the user's associated bookings as a table."""
+    
+    model = Confirmed_booking
+    template_name = 'my_bookings.html'
+    context_object_name = 'bookingData'
+
+    def get_queryset(self): #override to include sorting / filtering functionality
+        queryset = super().get_queryset() #unsorted query
+        sortby = self.request.GET.get('sortby', 'booking_date') #obtain sort through url (default to booking_date)
+        usertype = self.request.GET.get('user', 'student') #obtain user type through url (default to student)
+        current_username = self.request.user.username #obtain logged in username
+
+        #maps table headers to the respective model data
+        keymap = {
+            'date' : 'booking_date',
+            'time' : 'booking_time',
+            'tutor' : 'tutor__first_name',
+            'student' : 'booking__student__first_name',
+            'subject' : 'booking__subject',
+            'difficulty' : 'booking__difficulty',
+        }
+
+        #filter only bookings related to current user
+        if usertype == 'student': 
+            queryset = queryset.filter(booking__student__username=current_username) 
+        elif usertype == 'tutor': 
+            queryset = queryset.filter(tutor__username=current_username)
+
+        return queryset.order_by(keymap.get(sortby, 'booking_date'))
+    
+    def get(self, request, *args, **kwargs): #override to ensure forced sort
+        current_user = request.user #obtain user info
+        attempted_user_type = request.GET.get('user') #to prevent loading the wrong page
+
+        # if the user is a admin user
+        if hasattr(current_user, 'admin'): 
+            #if an admin happens to load the page, send them to the correct version
+            return redirect('view_bookings')
+        
+        # if the user is a student user
+        if hasattr(current_user, 'student'):
+            if attempted_user_type == 'tutor' or 'user' not in request.GET:
+                return redirect(request.path + '?user=student')
+
+        # if the user is a tutor user
+        if hasattr(current_user, 'tutor'):
+            if attempted_user_type == 'studentr' or 'user' not in request.GET:
+                return redirect(request.path + '?user=tutor')
+        
+        return super().get(request, *args, **kwargs)
 
 class ViewInvoicesView(LoginRequiredMixin, ListView):
-    """Display the confirmed bookings as a table."""
+    """Display all invoices as a table."""
     
     model = Invoices
     template_name = 'invoices.html'
     context_object_name = 'invoiceData'
 
-    def get_queryset(self): #override to include sorting functionality
+    def get_queryset(self): #override to include sorting / filtering functionality
         '''SORTING'''
         queryset = super().get_queryset() #unsorted query
         sortby = self.request.GET.get('sortby', 'year') #obtain filter through url (default to booking_date)
