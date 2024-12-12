@@ -51,3 +51,33 @@ $ python3 manage.py test
 The packages used by this application are specified in `requirements.txt`
 
 *Declare are other sources here, and remove this line*
+We have developed a web application for tutors, students and Code Tutor admins. The application allows students to request booking for a desired programming language and a level of complexity (difficulty). After which  an admin can confirm the booking by assigning a tutor, date and time for 10 weekly sessions.
+
+In addition to the pre-existing functionality:
+
+As an admin you can:
+	-View bookings
+	-Manage bookings (edit or delete)
+	-View booking requests created by students
+	-Confirm requests created by students
+	-View and manage admins
+	-View and manage students
+	-View and manage tutors
+	-Manually create a booking for a student
+
+Admin Login: 	Username:@johndoe        Alternative:   Username:@admin
+		          Password:Password123                    Password:Password123
+  
+As a student you can----------------------------------------------------------------------------------
+	-Create a booking request
+	-View your bookings
+	-View invoices
+
+Student Login: 	Username:@student
+		            Password:Password123
+              
+As a tutor you can:----------------------------------------------------------------------------------
+	-View upcoming lessons
+
+Student Login: 	Username:@tutor
+            		Password:Password123
