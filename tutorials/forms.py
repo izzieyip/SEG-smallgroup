@@ -193,7 +193,6 @@ skills = [
     ("DJ", "DJANGO")
 ]
 
-#we're going to search for a BookingRequest object by student username and subject
 
 class BookingForm(forms.Form):
     #form to create a insert a new booking into the table
@@ -204,8 +203,33 @@ class BookingForm(forms.Form):
     tutor = forms.CharField(label="Tutor username", max_length=255)
 
 
+class ConfirmedBookingForm(forms.ModelForm):
+    class Meta:
+        model = Confirmed_booking
+        fields = ['booking', 'tutor', 'booking_date', 'booking_time']
+        widgets = {
+            'booking_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'booking_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'booking': forms.Select(attrs={'class': 'form-select'}),
+            'tutor': forms.Select(attrs={'class': 'form-select'}),
+        }
+        labels = {
+            'booking': 'Booking Request',
+            'tutor': 'Tutor',
+            'booking_date': 'Date',
+            'booking_time': 'Time',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Restrict booking choices to only unconfirmed bookings
+        self.fields['booking'].queryset = Booking_requests.objects.filter(isConfirmed=False)
+
+
+
 class UpdateBookingForm(forms.ModelForm):
     # a form to aid in the updating of bookings
     class Meta:
         model = Confirmed_booking
         fields = ["booking_date", "booking_time", "tutor"]
+
