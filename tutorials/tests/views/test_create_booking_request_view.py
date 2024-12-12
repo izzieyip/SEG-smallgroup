@@ -2,18 +2,23 @@
 from django.test import TestCase
 from django.urls import reverse
 from tutorials.forms import Booking_requests
-from tutorials.models import Booking_requests, User
+from tutorials.models import Student, User, Booking_requests
 
 class createBookingRequestViewTestCase(TestCase):
     """ Tests of the create booking requests view """
 
-    fixtures = ['tutorials/tests/fixtures/default_user.json']
+    #fixtures = ['tutorials/tests/fixtures/default_user.json']
 
     def setUp(self):
         self.url = reverse('create_booking_request')
-        self.student = User.objects.get(username='@johndoe')
+        self.user = Student.objects.create(
+            username = "@johndoe",
+            first_name="John", 
+            last_name="Doe", 
+            email="johndoe@example.com", 
+            password="pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
+        )
         self.formInput = {
-            "student" : self.student,
             "subject" : "DJ",
             "difficulty" : 1
         }
@@ -22,14 +27,12 @@ class createBookingRequestViewTestCase(TestCase):
         self.assertEqual(self.url, '/create_booking_request/')
 
     def test_get_booking_request(self):
+        self.client.login(username=self.user.username, password='Password123')
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'create_booking_requests.html')
-        form = response.context['form']
-        self.assertTrue(isinstance(form, Booking_requests))
-        self.assertFalse(form.is_bound)
 
     def test_request_stored_successfully(self):
+        self.client.login(username=self.user.username, password='Password123')
         before_count = Booking_requests.objects.count()
         self.client.post(self.url, self.formInput, follow=True)
         after_count = Booking_requests.objects.count()

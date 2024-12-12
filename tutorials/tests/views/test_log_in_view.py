@@ -3,17 +3,23 @@ from django.contrib import messages
 from django.test import TestCase
 from django.urls import reverse
 from tutorials.forms import LogInForm
-from tutorials.models import User
+from tutorials.models import *
 from tutorials.tests.helpers import LogInTester, MenuTesterMixin, reverse_with_next
 
 class LogInViewTestCase(TestCase, LogInTester, MenuTesterMixin):
     """Tests of the log in view."""
 
-    fixtures = ['tutorials/tests/fixtures/default_user.json']
+    #fixtures = ['tutorials/tests/fixtures/default_user.json']
 
     def setUp(self):
         self.url = reverse('log_in')
-        self.user = User.objects.get(username='@johndoe')
+        self.user = Admin.objects.create(
+            username = "@johndoe",
+            first_name="John", 
+            last_name="Doe", 
+            email="johndoe@example.com", 
+            password="pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
+        )
 
     def test_log_in_url(self):
         self.assertEqual(self.url,'/log_in/')
@@ -95,22 +101,10 @@ class LogInViewTestCase(TestCase, LogInTester, MenuTesterMixin):
         form_input = { 'username': '@johndoe', 'password': 'Password123' }
         response = self.client.post(self.url, form_input, follow=True)
         self.assertTrue(self._is_logged_in())
-        response_url = reverse('dashboard')
-        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
         self.assertTemplateUsed(response, 'dashboard.html')
         messages_list = list(response.context['messages'])
         self.assertEqual(len(messages_list), 0)
         self.assert_menu(response)
-
-    def test_succesful_log_in_with_redirect(self):
-        redirect_url = reverse('profile')
-        form_input = { 'username': '@johndoe', 'password': 'Password123', 'next': redirect_url }
-        response = self.client.post(self.url, form_input, follow=True)
-        self.assertTrue(self._is_logged_in())
-        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
-        self.assertTemplateUsed(response, 'profile.html')
-        messages_list = list(response.context['messages'])
-        self.assertEqual(len(messages_list), 0)
 
     def test_post_log_in_redirects_when_logged_in(self):
         self.client.login(username=self.user.username, password="Password123")

@@ -35,10 +35,6 @@ def dashboard(request):
 
     # load the correct dashboard based on user type
 
-    # if the user is an admin user
-    if hasattr(current_user, 'admin'):
-        return render(request, 'dashboard.html', {'user': current_user})
-
     # if the user is a student user
     if hasattr(current_user, 'student'):
         return render(request, 'student_dashboard.html', {'user': current_user})
@@ -46,6 +42,9 @@ def dashboard(request):
     # if the user is a tutor user
     if hasattr(current_user, 'tutor'):
         return render(request, 'tutor_dashboard.html', {'user': current_user})
+    # if the user is an admin user
+    else:
+        return render(request, 'dashboard.html', {'user': current_user})
     
 
 
@@ -194,11 +193,11 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        if (form.cleaned_data('new_password') != form.cleaned_data('password_confirmation')):
+        if form.cleaned_data['new_password'] != form.cleaned_data['password_confirmation']:
             self.object = form.save()
+            login(self.request, self.object)
         else:
             form.add_error(None, "Passwords don't match")
-        login(self.request, self.object)
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -525,20 +524,20 @@ def create_multiple_objects(request):
 def CreatingBookingRequest(request):
     if request.method == 'POST':
         form = CreateBookingRequest(request.POST)
-        print("DEBUG: Form is bound:", form.is_bound)
+        #print("DEBUG: Form is bound:", form.is_bound)
         if form.is_valid():
             instance = form.save(commit=False)
             if request.user.is_authenticated:
                 student = Student.objects.get(username=request.user.username)
                 instance.student = student
                 instance.save()
-            else:
-                print("no user logged in")
-            print("DEBUG: Form is valid")
+            #else:
+                #print("no user logged in")
+            #print("DEBUG: Form is valid")
             form.save()
             return redirect("dashboard")
-        else:
-            print("DEBUG: Form errors:", form.errors)
+        #else:
+            #print("DEBUG: Form errors:", form.errors)
     else:
         form = CreateBookingRequest()
 
