@@ -17,7 +17,7 @@ from tutorials.helpers import login_prohibited
 from tutorials.models import Booking_requests, Confirmed_booking
 from django.db.models import Q
 from tutorials.models import Confirmed_booking, Student, Tutor
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm
+from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, CreateBookingRequest, BookingForm, UpdateBookingForm
 from tutorials.helpers import login_prohibited
 from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -331,24 +331,26 @@ def createBooking(request):
     return render(request, 'create_booking.html', {'form': form})
 
 
-def updateBooking(request, bookingid):
-
-    booking = Confirmed_booking.objects.get(id=bookingid)
-
+def updateBooking(request, booking_id):
+    try:
+        booking = Confirmed_booking.objects.get(id=booking_id)
+    except Confirmed_booking.DoesNotExist:
+        raise Http404(f"Could not find booking with ID {booking_id}") 
+    
     if request.method == "POST":
-        form = BookingForm(request.POST, instance=booking) 
+        form = UpdateBookingForm(request.POST, instance=booking)
         if form.is_valid():
             try:
-                booking.save()
+                form.save()
             except:
-                form.add_error(None, "Changes NOT saved - error occured.")
+                form.add_error(None, "It was not possible to update these booking details to the database.")
             else:
-                path = reverse('dashboard')
-                return HttpResponseRedirect(path)
-            
+                return redirect("view_bookings")
     else:
-        form = BookingForm(instance=booking)
-    return render(request, 'update_booking.html', {'form': form})
+        form = UpdateBookingForm(instance=booking)
+    return render(request, 'update_booking.html', {'booking_id': booking_id, 'form': form})
+
+
 
 # view function for the splitscreen with booking requests and tutors
 def display_all_booking_requests(request):

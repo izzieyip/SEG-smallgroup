@@ -202,3 +202,10 @@ class BookingForm(forms.Form):
     date = forms.DateField(label="Date")
     time = forms.TimeField(label = "Time")
     tutor = forms.CharField(label="Tutor username", max_length=255)
+
+
+class UpdateBookingForm(forms.ModelForm):
+    # a form to aid in the updating of bookings
+    class Meta:
+        model = Confirmed_booking
+        fields = ["booking_date", "booking_time", "tutor"]
