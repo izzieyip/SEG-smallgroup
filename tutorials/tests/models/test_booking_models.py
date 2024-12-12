@@ -11,15 +11,15 @@ class BookingRequestsTestCase(TestCase):
         # Create booking requests
         self.booking1 = Booking_requests.objects.create(
             student=self.student,
-            subject="MAT",  # Assuming "MAT" is a valid choice in Skills
+            subject="CPP",
             isConfirmed=False,
             difficulty=1,
         )
 
         self.booking2 = Booking_requests.objects.create(
             student=self.student,
-            subject="SCI",  # Another valid choice in Skills
-            confirmed=True,
+            subject="JAVA",  # Another valid choice in Skills
+            isConfirmed=True,
             difficulty=2,
         )
 
@@ -41,7 +41,7 @@ class BookingRequestsTestCase(TestCase):
 
     def test_str_method(self):
         # Test the string representation of a booking request
-        expected_str = f"Booking Pending for: {self.student} on None at None, wants to learn {self.booking1.subject}."
+        expected_str = f"Booking Pending for: {self.student} wants to learn {self.booking1.subject} at difficulty level {self.booking1.difficulty}."
         self.assertEqual(str(self.booking1), expected_str)
 
 
@@ -55,7 +55,8 @@ class ConfirmedBookingTestCase(TestCase):
         self.booking_request = Booking_requests.objects.create(
             student=self.student,
             subject="CPP",
-            confirmed=False
+            isConfirmed=False,
+            difficulty = 4
         )
 
         # Create a confirmed booking
