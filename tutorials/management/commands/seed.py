@@ -1,5 +1,5 @@
 
-from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking, Invoices
+from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking, Admin, Invoices
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
