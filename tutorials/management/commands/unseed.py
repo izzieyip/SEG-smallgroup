@@ -10,3 +10,6 @@ class Command(BaseCommand):
         """Unseed the database."""
 
         User.objects.filter(is_staff=False).delete()
+        Booking_requests.objects.all().delete()
+        Confirmed_booking.objects.all().delete()
+        Invoices.objects.all().delete()
