@@ -222,6 +222,8 @@ class CreateNewAdminView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         admin_user = form.save(commit=False)
         admin_user.save()
+        
+        messages.success(self.request, self.success_message)
         return super().form_valid(form)
 
 class ViewBookingsView(LoginRequiredMixin, ListView):
@@ -510,7 +512,7 @@ def create_multiple_objects(request):
 
 
 
-# displaying the form to create a new booking request
+# displaying the form to create a new booking request on the student dashboard
 @login_required
 def creatingBookingRequest(request):
     if request.method == 'POST':
@@ -562,7 +564,7 @@ def createBooking(request):
         form = BookingForm()
     return render(request, 'create_booking.html', {'form': form})
 
-
+# view function to edit the details of an already existing booking
 def updateBooking(request, booking_id):
     try:
         booking = Confirmed_booking.objects.get(id=booking_id)
@@ -620,6 +622,7 @@ def display_all_booking_requests(request, booking_id=None):
 
 
 # view function to display all users in one page
+@login_required
 def display_all_users(request):
    admin = User.objects.values('id','username', 'first_name', 'last_name', 'email').exclude(student__isnull=False).exclude(tutor__isnull=False)
    students = Student.objects.values('id','username', 'first_name', 'last_name', 'email')

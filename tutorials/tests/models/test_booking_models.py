@@ -11,14 +11,15 @@ class BookingRequestsTestCase(TestCase):
         # Create booking requests
         self.booking1 = Booking_requests.objects.create(
             student=self.student,
-            subject="MAT",  # Assuming "MAT" is a valid choice in Skills
+            subject="CPP",
             isConfirmed=False,
             difficulty=1,
         )
 
         self.booking2 = Booking_requests.objects.create(
             student=self.student,
-            subject="SCI",  # Another valid choice in Skills
+            subject="JAVA",  
+
             isConfirmed=True,
             difficulty=2,
         )
@@ -58,7 +59,8 @@ class ConfirmedBookingTestCase(TestCase):
         self.booking_request = Booking_requests.objects.create(
             student=self.student,
             subject="CPP",
-            isConfirmed=False
+            isConfirmed=False,
+            difficulty = 4
         )
 
         # Create a confirmed booking

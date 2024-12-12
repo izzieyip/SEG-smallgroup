@@ -54,12 +54,12 @@
       <td>{{confirmedBooking.booking.subject}}</td>
       <td>{{confirmedBooking.booking.difficulty}}</td>
 
-      <!-- Manage Buttons -->
+      <!-- Buttons for editing and deleting a booking-->
       <td>
         <a href="{% url 'update_booking' confirmedBooking.id %}" class="btn btn-warning">Edit</a> /
         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirm{{ confirmedBooking.id }}">Delete</button>
       </td>
-      <!-- REPLACE HREF FOR EDIT WITH: { url 'update_booking' confirmedBooking.id} using %-->
+      
 
       <!-- Repeating Modal for delete button -->
       <div class="modal fade" id="deleteConfirm{{ confirmedBooking.id }}" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
