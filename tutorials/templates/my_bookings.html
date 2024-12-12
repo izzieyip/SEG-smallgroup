@@ -1,0 +1,49 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<!-- Modified copy of view_bookings, personalised for the user -->
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>My upcoming lessons.</h1>
+    </div>
+  </div>
+  <table class="table table-striped">
+    <tr>
+      <!-- Maintain user type -->
+      <th><a href="?user={{ request.GET.user }}&sortby=date">Date</a></th>
+      <th><a href="?user={{ request.GET.user }}&sortby=time">Time</a></th>
+      {% if request.GET.user == "student"%} <!-- Different table content based on logged in user -->
+      <th><a href="?user=student&sortby=tutor">Tutor</a></th>
+      {% endif %}
+      {% if request.GET.user == "tutor"%}
+      <th><a href="?user=tutor&sortby=student">Student</a></th>
+      {% endif %}
+      <th><a href="?user={{ request.GET.user }}&sortby=subject">Subject</a></th>
+      <th><a href="?user={{ request.GET.user }}&sortby=difficulty">Difficulty</a></th>
+    </tr>
+
+    {% for confirmedBooking in bookingData%}
+    <!--Display each of the user's bookings in table format-->
+    <tr>
+      <!-- Base Data -->
+      <td>{{confirmedBooking.booking_date}}</td>
+      <td>{{confirmedBooking.booking_time}}</td>
+      {% if request.GET.user == "student"%} <!-- Different table content based on logged in user -->
+      <td>{{confirmedBooking.tutor.full_name}}</td>
+      {% endif %}
+      {% if request.GET.user == "tutor"%}
+      <td>{{confirmedBooking.booking.student.full_name}}</td>
+      {% endif %}
+      <td>{{confirmedBooking.booking.subject}}</td>
+      <td>{{confirmedBooking.booking.difficulty}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <div class="row">
+    <div class="col-12">
+      <p>If less bookings are being displayed than expected, contact an Admin.</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

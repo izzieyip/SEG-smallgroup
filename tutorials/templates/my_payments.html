@@ -1,0 +1,47 @@
+{% extends 'base_content.html' %}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+      <h1>My outstanding payments.</h1>
+    </div>
+  </div>
+  {% if total_payments == None %} <!-- No outstanding payments-->
+    <div class="row">
+      <div class="col-12">
+        <h3>All settled up!</h3>
+      </div>
+    </div>
+  {% else %} <!-- At least 1 outstanding payment-->
+    <table class="table table-striped">
+      <tr>
+        <!-- Horrible long commands to maintain the sort when a filter is applied :( -->
+        <th><a href="?sortby=year">Year</a></th> <!-- Sort links -->
+        <th><a href="?sortby=amount">Amount</a></th>
+      </tr>
+
+      <!--Display each entry of Invoices in table format-->
+      {% for invoice in invoiceData%}
+        {% if invoice.paid == False %} <!-- Only display outstanding invoices, meaning paid != True -->
+          <!--Display each entry of Invoices in table format-->
+          <tr>
+            <td>{{invoice.year}}</td>
+            <td>{{invoice.amount}}</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </table>
+    <div class="row">
+      <div class="col-12">
+        <h3>Total: ${{ total_payments }}</h3> <!-- Display total of 'amount' field -->
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <p>Note that these are manually confirmed by Admins. If you've made a payment recently, please give up to 24 hours for it to disappear from this page.</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
