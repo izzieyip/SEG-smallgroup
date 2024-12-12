@@ -456,4 +456,3 @@ def delete_user(request, id):
     obj.delete()
     return redirect('view_users')
 
-

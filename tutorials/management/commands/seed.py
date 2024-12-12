@@ -1,5 +1,5 @@
 
-from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking, Invoices
+from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_booking, Admin, Invoices
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -94,10 +94,23 @@ class Command(BaseCommand):
         # creates default users of each type for testing purposes
         for data in admin_fixtures:
             self.try_create_admin(data)
-        for data in student_fixtures:
-            self.try_create_student(data)
         for data in tutor_fixtures:
             self.try_create_tutor(data)
+        for data in student_fixtures:
+            self.try_create_student(data)
+            student = Student.objects.get(username=data['username'])  # Get the created student
+
+            # long-winded but ensures that the default student will always have lessons to view
+            booking_data = {'student': data['student'], 'subject': "CPP", 'difficulty': 3, 'isConfirmed': False }
+            self.try_create_bookingrequests(booking_data)
+            booking = Booking_requests.objects.filter(student=student).latest('id')
+            tutor = random.choice(Tutor.objects.all())
+            date = self.faker.date_this_year()
+            time = self.faker.time('%H:%M')
+            self.try_create_booking({'booking': booking, 'tutor': tutor, 'booking_date': date, 'booking_time': time})
+
+
+        # create a default booking for the default student and tutor for testing purposes
        
     def try_create_user(self, data):
         try:
