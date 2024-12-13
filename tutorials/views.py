@@ -511,20 +511,14 @@ def create_multiple_objects(request):
 def CreatingBookingRequest(request):
     if request.method == 'POST':
         form = CreateBookingRequest(request.POST)
-        #print("DEBUG: Form is bound:", form.is_bound)
         if form.is_valid():
             instance = form.save(commit=False)
             if request.user.is_authenticated:
                 student = Student.objects.get(username=request.user.username)
                 instance.student = student
                 instance.save()
-            #else:
-                #print("no user logged in")
-            #print("DEBUG: Form is valid")
             form.save()
             return redirect("dashboard")
-        #else:
-            #print("DEBUG: Form errors:", form.errors)
     else:
         form = CreateBookingRequest()
 
