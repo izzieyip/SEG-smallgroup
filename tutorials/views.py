@@ -422,35 +422,6 @@ class ViewMyPayments(LoginRequiredMixin, ListView):
         context['total_payments'] = total_payments 
         return context
 
-#task 5 booking searching
-#this function is to be assinged to the search button and takes the input of the search bar
-#depending on what results are needed, call the respective booking function
-def search_booking_requests(query):
-    if not query:
-        # If query is empty or None, return all bookings or handle as needed
-        return Booking_requests.objects.all()
-
-    bookings = Booking_requests.objects.filter(
-        Q(student__full_name__icontains=query) |
-        Q(subject__icontains=query)
-    )
-    return bookings
-
-def search_confirmed_requests(query):
-    if not query:
-        # If query is empty or None, return no results
-        return Confirmed_booking.objects.all()
-
-    bookings = Confirmed_booking.objects.filter(
-        Q(tutor__full_name__icontains=query) |
-        Q(booking__student__full_name__icontains=query) |
-        Q(booking_date__icontains=query)
-    )
-    return bookings
-
-#"MyForm" palceholder for the create a confirmed booking form
-#i changed ^ to booking form - izzy
-
 
 def create_multiple_objects(request):
     if request.method == 'POST':
