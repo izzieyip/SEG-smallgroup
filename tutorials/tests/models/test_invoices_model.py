@@ -15,27 +15,8 @@ class BookingRequestsTestCase(TestCase):
             isConfirmed=False
         )
 
-        self.tutor = Tutor.objects.create(
-            username="@SamBob1",
-            first_name="Sam1",
-            last_name="Bob1",
-            email="sambob1@example.com",
-            skills="CPP",
-            password="Password123",
-            experience_level=3,
-            available_days="SUN",
-            available_times=1
-        )
-
-        self.confirmed_booking = Confirmed_booking.objects.create(
-            booking=self.booking_request,
-            tutor=self.tutor,
-            booking_date=datetime.date.today(),
-            booking_time=datetime.time(12, 0)
-        )
-
         self.invoice = Invoices.objects.create(
-            booking=self.confirmed_booking, student = self.student, year = 2020, amount = 100, paid = False)
+            booking=self.booking_request, student = self.student, year = 2020, amount = 100, paid = False)
 
 
     # may need to remove this test as it is tested in signals now
@@ -43,7 +24,7 @@ class BookingRequestsTestCase(TestCase):
     def test_create_invoice(self):
         oldCount = Invoices.objects.count()
         year = datetime.date.today().year
-        Invoices.objects.create(booking = self.confirmed_booking, student = self.student, year = year, amount = 100, paid = False)
+        Invoices.objects.create(booking = self.booking_request, student = self.student, year = year, amount = 100, paid = False)
         self.assertEqual(Invoices.objects.count(), oldCount+1)
 
     def test_invoice_str_method(self):

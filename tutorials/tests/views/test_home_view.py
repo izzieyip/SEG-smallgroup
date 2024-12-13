@@ -1,16 +1,21 @@
 """Tests of the home view."""
 from django.test import TestCase
 from django.urls import reverse
-from tutorials.models import User
+from tutorials.models import Admin
 
 class HomeViewTestCase(TestCase):
     """Tests of the home view."""
 
-    fixtures = ['tutorials/tests/fixtures/default_user.json']
-
     def setUp(self):
         self.url = reverse('home')
-        self.user = User.objects.get(username='@johndoe')
+        #Setup admin login 
+        self.user = Admin.objects.create_user(
+            username = "@AdminLogin",
+            first_name="Admin", 
+            last_name="Login", 
+            email="adminlogin@example.com", 
+            password="Hello1",
+        )
 
     def test_home_url(self):
         self.assertEqual(self.url,'/')
@@ -21,7 +26,7 @@ class HomeViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'home.html')
 
     def test_get_home_redirects_when_logged_in(self):
-        self.client.login(username=self.user.username, password="Password123")
+        login = self.client.login(username=self.user.username, password="Hello1")
         response = self.client.get(self.url, follow=True)
         redirect_url = reverse('dashboard')
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)

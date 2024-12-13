@@ -3,11 +3,12 @@ from tutorials.models import User, Student, Tutor, Booking_requests, Confirmed_b
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from datetime import timedelta
 
 import pytz
 from faker import Faker
 import random
-import datetime
+from datetime import timedelta
 
 # default users for each type for testing
 # @student, @tutor, @admin all default password: Password123
@@ -94,10 +95,23 @@ class Command(BaseCommand):
         # creates default users of each type for testing purposes
         for data in admin_fixtures:
             self.try_create_admin(data)
-        for data in student_fixtures:
-            self.try_create_student(data)
         for data in tutor_fixtures:
             self.try_create_tutor(data)
+        for data in student_fixtures:
+            self.try_create_student(data)
+            student = Student.objects.get(username=data['username'])  # Get the created student
+
+            # long-winded but ensures that the default student will always have lessons to view
+            booking_data = {'student': student, 'subject': "CPP", 'difficulty': 3, 'isConfirmed': False }
+            self.try_create_bookingrequests(booking_data)
+            booking = Booking_requests.objects.filter(student=student).latest('id')
+            tutor = random.choice(Tutor.objects.all())
+            date = self.faker.date_this_year()
+            time = self.faker.time('%H:%M')
+            self.try_create_booking({'booking': booking, 'tutor': tutor, 'booking_date': date, 'booking_time': time})
+
+
+        # create a default booking for the default student and tutor for testing purposes
        
     def try_create_user(self, data):
         try:
@@ -231,18 +245,18 @@ class Command(BaseCommand):
     def generate_bookingrequests(self):
         requestcount = Booking_requests.objects.count()
         while requestcount < self.USER_COUNT:
-            print(f"Seeding student {requestcount}/{self.USER_COUNT}", end='\r')
+            print(f"Seeding booking request {requestcount}/{self.USER_COUNT}", end='\r')
             self.generate_requests()
             requestcount = Booking_requests.objects.count()
 
         #generate confirmed bookings
         bookingcount = Confirmed_booking.objects.count()
-        while bookingcount < 100:
-            print(f"Seeding tutor {bookingcount}/100", end='\r')
+        while bookingcount < 1000:
+            print(f"Seeding confirmed booking {bookingcount}/100", end='\r')
             self.generate_bookings()
             bookingcount = Confirmed_booking.objects.count()
 
-        print("Booking seeding complete.      ")
+        print("Booking seeding complete.")
 
 
     #BOOKING REQUESTS
@@ -257,7 +271,7 @@ class Command(BaseCommand):
         try:
             self.create_bookingrequests(data)
         except:
-            print("failed")
+            #print("failed")
             pass
 
     def create_bookingrequests(self, data):
@@ -280,19 +294,40 @@ class Command(BaseCommand):
         try:
             self.create_booking(data)
         except:
-            print("failed")
+            #print("failed")
             pass
 
     def create_booking(self, data):
-        Confirmed_booking.objects.create(
-            booking=data['booking'],
-            tutor=data['tutor'],
-            booking_date=data['booking_date'],
-            booking_time=data['booking_time']
-        )
+        booking_request = data['booking']
+        tutor = data['tutor']
+        start_date = data['booking_date']
+        booking_time = data['booking_time']
 
-        # when a confirmed booking is created, automatically create an invoice
-        # a signal is sent to the receiver in signals.py
+        # Create 10 weekly bookings starting from the selected date
+        objects = []
+        for i in range(10):
+            booking_date = start_date + timedelta(weeks=i)
+            obj = Confirmed_booking(
+                booking=booking_request,
+                tutor=tutor,
+                booking_date=booking_date,
+                booking_time=booking_time
+            )
+            objects.append(obj)
+
+        # Bulk create the bookings
+        Confirmed_booking.objects.bulk_create(objects)
+
+        Invoices.objects.create(
+                booking=booking_request,
+                student=booking_request.student,
+                amount=200,  # Replace with the desired logic for the amount
+                year=booking_date.year,
+                paid=False
+        )
+        
+        booking_request.isConfirmed = True
+        booking_request.save()
 
 # Helper functions
 def create_username(first_name, last_name):

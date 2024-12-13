@@ -11,14 +11,15 @@ class BookingRequestsTestCase(TestCase):
         # Create booking requests
         self.booking1 = Booking_requests.objects.create(
             student=self.student,
-            subject="MAT",  # Assuming "MAT" is a valid choice in Skills
+            subject="CPP",
             isConfirmed=False,
             difficulty=1,
         )
 
         self.booking2 = Booking_requests.objects.create(
             student=self.student,
-            subject="SCI",  # Another valid choice in Skills
+            subject="JAVA",  
+
             isConfirmed=True,
             difficulty=2,
         )
@@ -27,10 +28,10 @@ class BookingRequestsTestCase(TestCase):
         # Test that booking requests are created correctly
         self.assertEqual(Booking_requests.objects.count(), 2)
         self.assertEqual(self.booking1.student.first_name, "John")
-        self.assertEqual(self.booking1.subject, "MAT")
+        self.assertEqual(self.booking1.subject, "CPP")
         self.assertFalse(self.booking1.isConfirmed)
         self.assertEqual(self.booking2.student.first_name, "John")
-        self.assertEqual(self.booking2.subject, "SCI")
+        self.assertEqual(self.booking2.subject, "JAVA")
         self.assertTrue(self.booking2.isConfirmed)
 
     def test_unique_together_constraint(self):
@@ -58,7 +59,8 @@ class ConfirmedBookingTestCase(TestCase):
         self.booking_request = Booking_requests.objects.create(
             student=self.student,
             subject="CPP",
-            isConfirmed=False
+            isConfirmed=False,
+            difficulty = 4
         )
 
         # Create a confirmed booking

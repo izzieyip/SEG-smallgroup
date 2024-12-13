@@ -4,7 +4,7 @@
   <div class="row">
     <div class="col-12">
       <h1>Create a Booking Request</h1>
-      <form action="{% url 'create_booking_request' %}" method="post">
+      <form action="{% url 'create_booking_requests' %}" method="post">
         {% csrf_token %}
         {% include 'partials/bootstrap_form.html' with form=form %}
         <input type="submit" value="Submit Request" class="btn btn-primary">

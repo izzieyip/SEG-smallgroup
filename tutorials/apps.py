@@ -6,5 +6,4 @@ class TutorialsConfig(AppConfig):
     name = 'tutorials'
 
     def ready(self):
-        import tutorials.signals  # Register signals
-        print("Signals imported successfully!")
+        pass

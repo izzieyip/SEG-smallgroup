@@ -11,20 +11,13 @@ from django.views.generic import ListView
 from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse
 from django.urls import reverse_lazy
-from tutorials.forms import CreateBookingRequest, LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, CreateNewAdminForm, ConfirmedBookingForm
+from tutorials.forms import *
 from tutorials.helpers import login_prohibited
-from tutorials.forms import LogInForm, PasswordForm, UserForm, SignUpForm, BookingForm, UpdateBookingForm
-from tutorials.helpers import login_prohibited
-
-from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking
-from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
-from tutorials.models import Student, Tutor, Booking_requests, Confirmed_booking, User
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-
 from django.db.models import Q, F, Sum
 from tutorials.models import *
-
+from datetime import timedelta
 
 
 @login_required
@@ -35,10 +28,6 @@ def dashboard(request):
 
     # load the correct dashboard based on user type
 
-    # if the user is an admin user
-    if hasattr(current_user, 'admin'):
-        return render(request, 'dashboard.html', {'user': current_user})
-
     # if the user is a student user
     if hasattr(current_user, 'student'):
         return render(request, 'student_dashboard.html', {'user': current_user})
@@ -46,13 +35,13 @@ def dashboard(request):
     # if the user is a tutor user
     if hasattr(current_user, 'tutor'):
         return render(request, 'tutor_dashboard.html', {'user': current_user})
-    
-
+    # if the user is an admin user
+    else:
+        return render(request, 'dashboard.html', {'user': current_user})
 
 @login_prohibited
 def home(request):
     """Display the application's start/home screen."""
-
     return render(request, 'home.html')
 
 
@@ -194,10 +183,7 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        if (form.cleaned_data('new_password') != form.cleaned_data('password_confirmation')):
-            self.object = form.save()
-        else:
-            form.add_error(None, "Passwords don't match")
+        self.object = form.save()
         login(self.request, self.object)
         return super().form_valid(form)
 
@@ -222,6 +208,8 @@ class CreateNewAdminView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         admin_user = form.save(commit=False)
         admin_user.save()
+        
+        messages.success(self.request, self.success_message)
         return super().form_valid(form)
 
 class ViewBookingsView(LoginRequiredMixin, ListView):
@@ -430,39 +418,10 @@ class ViewMyPayments(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs): #override to pass the sum of outstanding payments
         context = super().get_context_data(**kwargs) 
         current_username = self.request.user.username 
-        total_payments = self.model.objects.filter(student__username=current_username).aggregate(Sum('amount'))['amount__sum'] 
+        total_payments = self.model.objects.filter(student__username=current_username, paid=False).aggregate(Sum('amount'))['amount__sum'] 
         context['total_payments'] = total_payments 
         return context
 
-#task 5 booking searching
-#this function is to be assinged to the search button and takes the input of the search bar
-#depending on what results are needed, call the respective booking function
-def search_booking_requests(query):
-    if not query:
-        # If query is empty or None, return all bookings or handle as needed
-        return Booking_requests.objects.all()
-
-    bookings = Booking_requests.objects.filter(
-        Q(student__full_name__icontains=query) |
-        Q(subject__icontains=query)
-    )
-    return bookings
-
-def search_confirmed_requests(query):
-    if not query:
-        # If query is empty or None, return no results
-        return Confirmed_booking.objects.all()
-
-    bookings = Confirmed_booking.objects.filter(
-        Q(tutor__full_name__icontains=query) |
-        Q(booking__student__full_name__icontains=query) |
-        Q(booking_date__icontains=query)
-    )
-    return bookings
-
-#"MyForm" palceholder for the create a confirmed booking form
-#i changed ^ to booking form - izzy
-from datetime import timedelta
 
 def create_multiple_objects(request):
     if request.method == 'POST':
@@ -492,6 +451,14 @@ def create_multiple_objects(request):
                 # Bulk create the bookings
                 Confirmed_booking.objects.bulk_create(objects)
 
+                Invoices.objects.create(
+                        booking=booking_request,
+                        student=booking_request.student,
+                        amount=200,  # Replace with the desired logic for the amount
+                        year=booking_date.year,
+                        paid=False
+                )
+
                 # Mark the booking request as confirmed
                 booking_request.isConfirmed = True
                 booking_request.save()
@@ -506,29 +473,23 @@ def create_multiple_objects(request):
     else:
         form = ConfirmedBookingForm()
 
-    return render(request, 'splitscreen.html', {'form': form})
+    return render(request, 'view_requests.html', {'form': form})
 
 
 
-# displaying the form to create a new booking request
+# displaying the form to create a new booking request on the student dashboard
 @login_required
-def creatingBookingRequest(request):
+def CreatingBookingRequest(request):
     if request.method == 'POST':
         form = CreateBookingRequest(request.POST)
-        print("DEBUG: Form is bound:", form.is_bound)
         if form.is_valid():
             instance = form.save(commit=False)
             if request.user.is_authenticated:
                 student = Student.objects.get(username=request.user.username)
                 instance.student = student
                 instance.save()
-            else:
-                print("no user logged in")
-            print("DEBUG: Form is valid")
             form.save()
             return redirect("dashboard")
-        else:
-            print("DEBUG: Form errors:", form.errors)
     else:
         form = CreateBookingRequest()
 
@@ -562,7 +523,7 @@ def createBooking(request):
         form = BookingForm()
     return render(request, 'create_booking.html', {'form': form})
 
-
+# view function to edit the details of an already existing booking
 def updateBooking(request, booking_id):
     try:
         booking = Confirmed_booking.objects.get(id=booking_id)
@@ -620,6 +581,7 @@ def display_all_booking_requests(request, booking_id=None):
 
 
 # view function to display all users in one page
+@login_required
 def display_all_users(request):
    admin = User.objects.values('id','username', 'first_name', 'last_name', 'email').exclude(student__isnull=False).exclude(tutor__isnull=False)
    students = Student.objects.values('id','username', 'first_name', 'last_name', 'email')
