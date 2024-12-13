@@ -9,12 +9,12 @@ class HomeViewTestCase(TestCase):
     def setUp(self):
         self.url = reverse('home')
         #Setup admin login 
-        self.user = Admin.objects.create(
+        self.user = Admin.objects.create_user(
             username = "@AdminLogin",
             first_name="Admin", 
             last_name="Login", 
             email="adminlogin@example.com", 
-            password="pbkdf2_sha256$260000$4BNvFuAWoTT1XVU8D6hCay$KqDCG+bHl8TwYcvA60SGhOMluAheVOnF1PMz0wClilc=",
+            password="Hello1",
         )
 
     def test_home_url(self):
@@ -26,10 +26,8 @@ class HomeViewTestCase(TestCase):
         self.assertTemplateUsed(response, 'home.html')
 
     def test_get_home_redirects_when_logged_in(self):
-        self.client.login(username=self.user.username, password=self.user.password)
+        login = self.client.login(username=self.user.username, password="Hello1")
         response = self.client.get(self.url, follow=True)
         redirect_url = reverse('dashboard')
-        print("Response status code:", response.status_code)
-        print("Response content:", response.content.decode())
         self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
         self.assertTemplateUsed(response, 'dashboard.html')
