@@ -122,7 +122,7 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT = /home/TeamHippo1/SEG-smallgroup/static
+STATIC_ROOT = '/home/TeamHippo1/SEG-smallgroup/static'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
