@@ -490,11 +490,12 @@ def CreatingBookingRequest(request):
                 instance.save()
             form.save()
             return redirect("dashboard")
+        messages.add_message(request, messages.ERROR, "The credentials provided were invalid!")
+        return self.render()
     else:
         form = CreateBookingRequest()
 
     template_name = "create_booking_requests.html"
-    messages.add_message(request, messages.ERROR, "You already have lessons for the subject selected")
     return render(request, template_name, context={'form': form})
     
 
