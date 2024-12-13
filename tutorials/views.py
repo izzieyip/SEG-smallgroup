@@ -38,13 +38,10 @@ def dashboard(request):
     # if the user is an admin user
     else:
         return render(request, 'dashboard.html', {'user': current_user})
-    
-
 
 @login_prohibited
 def home(request):
     """Display the application's start/home screen."""
-
     return render(request, 'home.html')
 
 
@@ -186,11 +183,8 @@ class SignUpView(LoginProhibitedMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        if form.cleaned_data['new_password'] != form.cleaned_data['password_confirmation']:
-            self.object = form.save()
-            login(self.request, self.object)
-        else:
-            form.add_error(None, "Passwords don't match")
+        self.object = form.save()
+        login(self.request, self.object)
         return super().form_valid(form)
 
     def get_success_url(self):
