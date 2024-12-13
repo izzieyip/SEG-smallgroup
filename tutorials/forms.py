@@ -115,7 +115,7 @@ class SignUpForm(NewPasswordMixin, forms.ModelForm):
                 fields=['first_name', 'last_name', 'username', 'email']
             ))
 
-    def save(self, commit=True):
+    def save(self):
         """Create a new user of the selected type."""
         if self.is_valid():
             userType = self.cleaned_data.get('userType')
