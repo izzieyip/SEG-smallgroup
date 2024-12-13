@@ -279,7 +279,6 @@ class ViewBookingsView(LoginRequiredMixin, ListView):
     def delete_booking(request, id):
         # used with delete button in manage table
         obj = Confirmed_booking.objects.get(id=id)
-        obj.booking.delete() #delete Booking_requests object too
         obj.delete()
         return redirect('view_bookings')
     
