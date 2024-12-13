@@ -37,9 +37,6 @@ def dashboard(request):
         return render(request, 'tutor_dashboard.html', {'user': current_user})
 
 
-    
-
-
 @login_prohibited
 def home(request):
     """Display the application's start/home screen."""
