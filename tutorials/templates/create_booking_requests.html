@@ -4,6 +4,7 @@
   <div class="row">
     <div class="col-12">
       <h1>Create a Booking Request</h1>
+      <h3>Note: You cannot request lessons for a subject that you already take lessons for!</h3>
       <form action="{% url 'create_booking_requests' %}" method="post">
         {% csrf_token %}
         {% include 'partials/bootstrap_form.html' with form=form %}
